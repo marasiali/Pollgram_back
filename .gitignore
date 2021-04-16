@@ -274,12 +274,12 @@ pyvenv.cfg
 pip-selfcheck.json
 
 ### vscode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
+**/.vscode/*
+**/!.vscode/settings.json
+**/!.vscode/tasks.json
+**/!.vscode/launch.json
+**/!.vscode/extensions.json
+**/*.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/django,pycharm,vscode,venv
 
