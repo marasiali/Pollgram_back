@@ -47,7 +47,7 @@ def createUserProfile(sender, instance, created, *args, **kwargs):
 
 class FollowRelationship(models.Model):
     from_user = models.ForeignKey(UserProfile(), verbose_name="From", on_delete=models.CASCADE, related_name="followings")
-    to_user = models.ForeignKey(UserProfile(), verbose_name="From", on_delete=models.CASCADE, related_name="followers")
+    to_user = models.ForeignKey(UserProfile(), verbose_name="To", on_delete=models.CASCADE, related_name="followers")
     pending = models.BooleanField(verbose_name="IsPending?")
 
     class Meta:
