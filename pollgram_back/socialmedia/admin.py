@@ -1,6 +1,17 @@
 from django.contrib import admin
-from .models import UserProfile, FollowRelationship
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from .models import FollowRelationship
 
-
-admin.site.register(UserProfile)
+class CutsomUserAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (
+            ('Profile', {'fields': (
+                                'avatar',
+                                'cover',
+                                'bio',
+                                'is_public',
+                                'is_verified',
+            )}),
+    )
+admin.site.register(get_user_model(), CutsomUserAdmin)
 admin.site.register(FollowRelationship)
