@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from .models import FollowRelationship
+from ..models import FollowRelationship
 
 class FollowRelationshipTest(TestCase):
 
