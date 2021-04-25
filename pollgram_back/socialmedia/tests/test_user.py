@@ -1,24 +1,25 @@
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 class UserRetrieveAPITest(APITestCase):
     fixtures = ['user_fixture']
 
     def test_retrieve_admin_by_unauthorized(self):
         unauthorized_response = self.client.get('/api/user/1/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_admin_by_other(self):
         other_user = get_user_model().objects.get(id=2)
-        self.client.force_login(other_user)
-        other_user_response = self.client.get('/api/user/1/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.get('/api/user/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_retrieve_admin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
-        admin_user_response = self.client.get('/api/user/1/')
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
+        admin_user_response = self.client.get('/api/user/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_200_OK)
         self.assertEqual(admin_user_response.data, {
             "id": 1,
@@ -37,12 +38,12 @@ class UserRetrieveAPITest(APITestCase):
 
     def test_retrieve_nonadmin_by_unauthorized(self):
         unauthorized_response = self.client.get('/api/user/2/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_nonadmin_by_other(self):
         other_user = get_user_model().objects.get(id=3)
-        self.client.force_login(other_user)
-        other_user_response = self.client.get('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.get('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_200_OK)
         self.assertEqual(other_user_response.data, {
             "id": 2,
@@ -61,8 +62,8 @@ class UserRetrieveAPITest(APITestCase):
 
     def test_retrieve_nonadmin_by_self(self):
         self_user = get_user_model().objects.get(id=2)
-        self.client.force_login(self_user)
-        self_user_response = self.client.get('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(self_user))}'
+        self_user_response = self.client.get('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(self_user_response.status_code, status.HTTP_200_OK)
         self.assertEqual(self_user_response.data, {
             "id": 2,
@@ -82,8 +83,8 @@ class UserRetrieveAPITest(APITestCase):
 
     def test_retrieve_nonadmin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
-        admin_user_response = self.client.get('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
+        admin_user_response = self.client.get('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_200_OK)
         self.assertEqual(admin_user_response.data, {
             "id": 2,
@@ -105,17 +106,17 @@ class UserUpdateAPITest(APITestCase):
     
     def test_update_admin_by_unauthorized(self):
         unauthorized_response = self.client.put('/api/user/1/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_admin_by_other(self):
         other_user = get_user_model().objects.get(id=2)
-        self.client.force_login(other_user)
-        other_user_response = self.client.put('/api/user/1/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.put('/api/user/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_admin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
         admin_user_response = self.client.put('/api/user/1/',{
             'id': 2, # can't change
             "username": "admin1",
@@ -129,7 +130,7 @@ class UserUpdateAPITest(APITestCase):
             "is_verified": True,
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
-        }, format='json')
+        }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_200_OK)
         admin_user = get_user_model().objects.get(id=1)
         self.assertEqual(admin_user.username, "admin1")
@@ -146,17 +147,17 @@ class UserUpdateAPITest(APITestCase):
 
     def test_update_nonadmin_by_unauthorized(self):
         unauthorized_response = self.client.put('/api/user/2/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_nonadmin_by_other(self):
         other_user = get_user_model().objects.get(id=3)
-        self.client.force_login(other_user)
-        other_user_response = self.client.put('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.put('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_nonadmin_by_self(self):
         self_user = get_user_model().objects.get(id=2)
-        self.client.force_login(self_user)
+        token = f'Bearer {str(AccessToken.for_user(self_user))}'
         self_user_response = self.client.put('/api/user/2/',{
             "id": 1, # can't change
             "username": "sample1",
@@ -170,7 +171,7 @@ class UserUpdateAPITest(APITestCase):
             "is_verified": True, # can't change
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
-        }, format='json')
+        }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(self_user_response.status_code, status.HTTP_200_OK)
         self_user = get_user_model().objects.get(id=2)
         self.assertEqual(self_user.username, "sample1")
@@ -187,7 +188,7 @@ class UserUpdateAPITest(APITestCase):
 
     def test_update_nonadmin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
         admin_user_response = self.client.put('/api/user/2/',{
             "id": 1, # can't change
             "username": "sample1",
@@ -201,7 +202,7 @@ class UserUpdateAPITest(APITestCase):
             "is_verified": True,
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
-        }, format='json')
+        }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_200_OK)
         sample_user = get_user_model().objects.get(id=2)
         self.assertEqual(sample_user.username, "sample1")
@@ -221,40 +222,40 @@ class UserDestroyAPITest(APITestCase):
     
     def test_destroy_admin_by_unauthorized(self):
         unauthorized_response = self.client.delete('/api/user/1/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_destroy_admin_by_other(self):
         other_user = get_user_model().objects.get(id=2)
-        self.client.force_login(other_user)
-        other_user_response = self.client.delete('/api/user/1/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.delete('/api/user/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_destroy_admin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
-        admin_user_response = self.client.delete('/api/user/1/')
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
+        admin_user_response = self.client.delete('/api/user/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_204_NO_CONTENT)
         
     def test_destroy_nonadmin_by_unauthorized(self):
         unauthorized_response = self.client.delete('/api/user/2/')
-        self.assertEqual(unauthorized_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(unauthorized_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_destroy_nonadmin_by_other(self):
         other_user = get_user_model().objects.get(id=3)
-        self.client.force_login(other_user)
-        other_user_response = self.client.delete('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(other_user))}'
+        other_user_response = self.client.delete('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(other_user_response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_destroy_nonadmin_by_self(self):
         self_user = get_user_model().objects.get(id=2)
-        self.client.force_login(self_user)
-        self_user_response = self.client.delete('/api/user/2/')
+        token = f'Bearer {str(AccessToken.for_user(self_user))}'
+        self_user_response = self.client.delete('/api/user/2/', HTTP_AUTHORIZATION=token)
         self.assertEqual(self_user_response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_destroy_nonadmin_by_admin(self):
         admin_user = get_user_model().objects.get(id=1)
-        self.client.force_login(admin_user)
-        admin_user_response = self.client.delete('/api/user/3/')
+        token = f'Bearer {str(AccessToken.for_user(admin_user))}'
+        admin_user_response = self.client.delete('/api/user/3/', HTTP_AUTHORIZATION=token)
         self.assertEqual(admin_user_response.status_code, status.HTTP_204_NO_CONTENT)
 
 # TODO: UserAvatarAPI and UserCoverApi test
