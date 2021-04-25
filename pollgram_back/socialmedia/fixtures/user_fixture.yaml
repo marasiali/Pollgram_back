@@ -1,0 +1,45 @@
+-   model: socialmedia.user
+    pk: 1
+    fields:
+        username: admin
+        email: 'admin@pollgram.local'
+        password: pbkdf2_sha256$216000$1QWiGXCHud7N$zSiSC4Tjk3oh9/gpU4sC5JT3tK/0O4VYjGw2N3/j+60= # 123
+        first_name: 'Admin_first'
+        last_name: 'Admin_last'
+        is_superuser: true
+        avatar: null
+        cover: null
+        bio: 'Admin bio'
+        is_public: true
+-   model: socialmedia.user
+    pk: 2
+    fields:
+        username: sample
+        email: 'sample@pollgram.local'
+        password: pbkdf2_sha256$216000$1QWiGXCHud7N$zSiSC4Tjk3oh9/gpU4sC5JT3tK/0O4VYjGw2N3/j+60= # 123
+        first_name: 'sample_first'
+        last_name: 'sample_last'
+        is_superuser: false
+        avatar: null
+        cover: null
+        bio: 'sample bio'
+        is_public: true
+-   model: socialmedia.user
+    pk: 3
+    fields:
+        username: another
+        email: 'another@pollgram.local'
+        password: pbkdf2_sha256$216000$1QWiGXCHud7N$zSiSC4Tjk3oh9/gpU4sC5JT3tK/0O4VYjGw2N3/j+60= # 123
+        first_name: 'another_first'
+        last_name: 'another_last'
+        is_superuser: false
+        avatar: null
+        cover: null
+        bio: 'another bio'
+        is_public: true
+-   model: socialmedia.followrelationship
+    pk: 1
+    fields:
+        from_user: 2
+        to_user: 3
+        pending: false

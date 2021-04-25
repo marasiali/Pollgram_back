@@ -1,6 +1,11 @@
 from django.shortcuts import render
-
+from dj_rest_auth.registration.views import ConfirmEmailView
+from django.shortcuts import reverse
 
 def verified(request):
     return render(request, 'pollgram_auth/confirmEmail.html')
-# Create your views here.
+
+
+class CustomConfirmEmailView(ConfirmEmailView):
+    def get_redirect_url(self):
+        return reverse('pollgram_auth:verified')
