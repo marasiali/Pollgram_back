@@ -6,6 +6,6 @@ from pollgram_auth.views import verified
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/rest-auth/', include('pollgram_auth.urls')),
-    path('accounts/login/', verified),
+    path('api/', include('socialmedia.api_urls')),
+    path('api/rest-auth/', include('pollgram_auth.api_urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
