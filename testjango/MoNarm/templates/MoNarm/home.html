@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Home</title>
+</head>
+<body>
+<center>
+<div >
+    {% for data in data %}
+    <div>
+        <h2> <a href="data/{{ data.slug }}  " > Name: {{ data.title }}</a></h2>
+        <img src="{{ data.image.url }}"  width="500px">
+    <p >
+         {{ data.publish }} <br>
+        rank : {{ data.status }}
+     </p>
+    </div>
+    {% endfor %}
+
+ {% for imgs in images %}
+<br><br><br>
+    <div >
+        <h2>  Name: {{ imgs.name }}</h2>
+         <img src="{{ imgs.img }}"  width="500px">
+    <p>
+        descrabtion : {{ imgs.desc }}
+      </p>
+
+    </div>
+    {% endfor %}
+</div>
+</center>
+</body>
+</html>
