@@ -8,4 +8,4 @@ def verified(request):
 
 class CustomConfirmEmailView(ConfirmEmailView):
     def get_redirect_url(self):
-        return reverse('pollgram_auth:verified')
+        return reverse('account_email_verified')
