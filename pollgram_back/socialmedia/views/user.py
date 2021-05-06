@@ -9,7 +9,7 @@ from ..serializers.user import (
     UserAdminAccessSerializer,
     UserBaseAccessSerializer,
     UserAvatarSerializer,
-    UserCoverSerializer,
+    UserCoverSerializer, UserSummarySerializer,
 )
 from ..permissons import IsSelfOrReadOnly
 
@@ -35,15 +35,11 @@ class UserCoverAPIView(RetrieveUpdateAPIView):
 
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
-    permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'first_name', 'last_name']
 
     pagination_class = SearchResultsSetPagination
 
-    def get_serializer_class(self):
-        if self.request.user.is_superuser:
-            return UserAdminAccessSerializer
-        else:
-            return UserBaseAccessSerializer
+    serializer_class = UserSummarySerializer
