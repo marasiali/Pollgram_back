@@ -47,6 +47,8 @@ INSTALLED_APPS = [
 
     'socialmedia',
     'pollgram_auth',
+
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +140,9 @@ REST_FRAMEWORK = {
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'
+        , 'rest_framework.filters.SearchFilter', ],
 }
 
 SITE_ID = 1
