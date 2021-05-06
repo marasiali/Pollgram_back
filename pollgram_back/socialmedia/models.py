@@ -4,8 +4,9 @@ from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django.utils import timezone
 
-class User(AbstractUser):
 
+class User(AbstractUser):
+    
     def uploadAvatar(instance, filename):
         username = instance.username
         ext = filename.split('.')[-1]
@@ -25,12 +26,25 @@ class User(AbstractUser):
     bio = models.CharField("Bio", blank=True, max_length=220)
     is_public = models.BooleanField("IsPublic?", default=True)
     is_verified = models.BooleanField("Verified?", default=False)
+    followings = models.ManyToManyField("self", related_name='followers', symmetrical=False, through='FollowRelationship')
 
     def get_followers(self):
-        return self.followers.filter(pending=False)
+        return self.followers.filter(follows_relationships__pending=False)
 
     def get_followings(self):
-        return self.followings.filter(pending=False)
+        return self.followings.filter(followed_relationships__pending=False)
+
+    def get_follow_status(self, to_user):
+        if self == to_user:
+            return None
+        try:
+            follow_rel = FollowRelationship.objects.get(from_user=self, to_user=to_user)
+            if follow_rel.pending:
+                return 'Pending'
+            else:
+                return 'Followed'
+        except FollowRelationship.DoesNotExist:
+            return 'NotFollowed'
 
     class Meta:
         verbose_name = "User"
@@ -39,8 +53,8 @@ class User(AbstractUser):
         return self.username
 
 class FollowRelationship(models.Model):
-    from_user = models.ForeignKey(get_user_model(), verbose_name="From", on_delete=models.CASCADE, related_name="followings")
-    to_user = models.ForeignKey(get_user_model(), verbose_name="To", on_delete=models.CASCADE, related_name="followers")
+    from_user = models.ForeignKey(get_user_model(), verbose_name="From", on_delete=models.CASCADE, related_name="follows_relationships")
+    to_user = models.ForeignKey(get_user_model(), verbose_name="To", on_delete=models.CASCADE, related_name="followed_relationships")
     pending = models.BooleanField(verbose_name="IsPending?")
 
     class Meta:

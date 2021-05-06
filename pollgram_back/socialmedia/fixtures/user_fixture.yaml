@@ -43,3 +43,9 @@
         from_user: 2
         to_user: 3
         pending: false
+-   model: socialmedia.followrelationship
+    pk: 2
+    fields:
+        from_user: 3
+        to_user: 2
+        pending: true
