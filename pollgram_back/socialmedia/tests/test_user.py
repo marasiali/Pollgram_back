@@ -32,6 +32,7 @@ class UserRetrieveAPITest(APITestCase):
             "bio": "Admin bio",
             "is_public": True,
             "is_verified": False,
+            "follow_status": None,
             "followers_count": 0,
             "followings_count": 0
         })
@@ -56,6 +57,7 @@ class UserRetrieveAPITest(APITestCase):
             "bio": "sample bio",
             "is_public": True,
             "is_verified": False,
+            "follow_status": "Pending",
             "followers_count": 0,
             "followings_count": 1
         })
@@ -76,6 +78,7 @@ class UserRetrieveAPITest(APITestCase):
             "bio": "sample bio",
             "is_public": True,
             "is_verified": False,
+            "follow_status": None,
             "followers_count": 0,
             "followings_count": 1
         })
@@ -97,6 +100,7 @@ class UserRetrieveAPITest(APITestCase):
             "bio": "sample bio",
             "is_public": True,
             "is_verified": False,
+            "follow_status": "NotFollowed",
             "followers_count": 0,
             "followings_count": 1
         })
@@ -128,6 +132,7 @@ class UserUpdateAPITest(APITestCase):
             "bio": "Admin1 bio",
             "is_public": False,
             "is_verified": True,
+            "follow_status": "Pending", #can't changes
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
         }, format='json', HTTP_AUTHORIZATION=token)
@@ -142,6 +147,7 @@ class UserUpdateAPITest(APITestCase):
         self.assertEqual(admin_user.bio, "Admin1 bio")
         self.assertFalse(admin_user.is_public)
         self.assertTrue(admin_user.is_verified)
+        self.assertEqual(admin_user.get_follow_status(admin_user), None)
         self.assertEqual(admin_user.get_followers().count(), 0)
         self.assertEqual(admin_user.get_followings().count(), 0)
 
@@ -169,6 +175,7 @@ class UserUpdateAPITest(APITestCase):
             "bio": "sample1 bio",
             "is_public": False,
             "is_verified": True, # can't change
+            "follow_status": "Pending", #can't changes
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
         }, format='json', HTTP_AUTHORIZATION=token)
@@ -183,6 +190,7 @@ class UserUpdateAPITest(APITestCase):
         self.assertEqual(self_user.bio, "sample1 bio")
         self.assertFalse(self_user.is_public)
         self.assertFalse(self_user.is_verified)
+        self.assertEqual(self_user.get_follow_status(self_user), None)
         self.assertEqual(self_user.get_followers().count(), 0)
         self.assertEqual(self_user.get_followings().count(), 1)
 
@@ -200,6 +208,7 @@ class UserUpdateAPITest(APITestCase):
             "bio": "sample1 bio",
             "is_public": False,
             "is_verified": True,
+            "follow_status": "Pending", #can't changes
             "followers_count": 100, # can't change
             "followings_count": 100 # can't change
         }, format='json', HTTP_AUTHORIZATION=token)
@@ -214,6 +223,7 @@ class UserUpdateAPITest(APITestCase):
         self.assertEqual(sample_user.bio, "sample1 bio")
         self.assertFalse(sample_user.is_public)
         self.assertTrue(sample_user.is_verified)
+        self.assertEqual(admin_user.get_follow_status(sample_user), "NotFollowed")
         self.assertEqual(sample_user.get_followers().count(), 0)
         self.assertEqual(sample_user.get_followings().count(), 1)
 
