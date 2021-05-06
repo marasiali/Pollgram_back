@@ -1,4 +1,6 @@
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenVerifyView
+from dj_rest_auth.jwt_auth import get_refresh_view
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, LogoutView, PasswordChangeView
 from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
 from .views import CustomConfirmEmailView, verified
@@ -15,4 +17,7 @@ urlpatterns = [
     path('account-confirm-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
     path('account-confirm-email/verified/', verified, name='account_email_verified'),
     path('password/reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
 ]
