@@ -30,7 +30,7 @@ class FollowAPIView(APIView):
     def post(self, request, pk):
         to_user = get_object_or_404(get_user_model(), pk=pk)
         if FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
+            return Response(status=status.HTTP_409_CONFLICT)
         elif to_user.is_public:
             FollowRelationship.objects.create(
                 from_user=request.user, to_user=to_user, pending=False)
@@ -47,7 +47,7 @@ class FollowAPIView(APIView):
     def delete(self, request, pk):
         to_user = get_object_or_404(get_user_model(), pk=pk)
         if not FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
+            return Response(status=status.HTTP_409_CONFLICT)
         else:
             FollowRelationship.objects.filter(
                 from_user=request.user, to_user=to_user).delete()
