@@ -9,5 +9,6 @@ urlpatterns = [
     path('user/avatar/<int:pk>/', user.UserAvatarAPIView.as_view(), name='avatar_api'),
     path('user/cover/<int:pk>/', user.UserCoverAPIView.as_view(), name='cover_api'),
     path('user/<int:pk>/timeline/', user.UserTimelineListAPIView.as_view(), name='timeline_api'),
+    path('user/<int:pk>/polls/', user.PollListAPIView.as_view(), name='user_polls_api'),
     path('user/', user.UserListAPIView.as_view(), name='user_list_api'),
 ]
