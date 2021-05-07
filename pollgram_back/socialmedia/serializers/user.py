@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from ..models import FollowRelationship
 
 
 class UserAdminAccessSerializer(serializers.ModelSerializer):
@@ -31,7 +30,8 @@ class UserAdminAccessSerializer(serializers.ModelSerializer):
             'followings_count',
         )
         read_only_fields = ('id', 'avatar', 'cover',)
-        
+
+
 class UserBaseAccessSerializer(serializers.ModelSerializer):
 
     def get_follow_status(self, to_user):
@@ -67,10 +67,12 @@ class UserAvatarSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['avatar']
 
+
 class UserCoverSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['cover']
+
 
 class UserSummarySerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,7 +80,6 @@ class UserSummarySerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'email',
             'first_name',
             'last_name',
             'avatar',
@@ -88,7 +89,6 @@ class UserSummarySerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'username',
-            'email',
             'first_name',
             'last_name',
             'avatar',
