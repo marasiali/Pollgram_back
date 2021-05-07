@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.authtoken.admin import User
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
@@ -64,3 +65,13 @@ class UserTimelineListAPIView(ListAPIView):
         for following in followings:
             polls = polls | following.polls.all()
         return polls
+
+
+class PollListAPIView(ListAPIView):
+    pagination_class = PollPagination
+    serializer_class = PollSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = get_object_or_404(get_user_model(), id=self.kwargs['pk'])
+        return user.polls.all()
