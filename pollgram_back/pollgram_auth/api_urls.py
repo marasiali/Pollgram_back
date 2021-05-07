@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenVerifyView
 from dj_rest_auth.jwt_auth import get_refresh_view
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, LogoutView, PasswordChangeView
-from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
+from dj_rest_auth.registration.views import VerifyEmailView
 from .views import CustomConfirmEmailView, verified
 
 urlpatterns = [

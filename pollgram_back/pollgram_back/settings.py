@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 
     'socialmedia',
     'pollgram_auth',
-
+    'poll',
     'django_filters',
 ]
 
