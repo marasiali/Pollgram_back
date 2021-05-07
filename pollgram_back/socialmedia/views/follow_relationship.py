@@ -5,16 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
 from ..models import FollowRelationship
+from ..pagination import DefaultPagination
 from ..permissons import IsSelfOrReadOnly
 from ..serializers.user import UserSummarySerializer
-
-
-class DefaultPagination(PageNumberPagination):
-    page_size = 50
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
 
 
 class FollowAPIView(APIView):

@@ -5,7 +5,7 @@ from rest_framework.authtoken.admin import User
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from .pagination import SearchResultsSetPagination
+from socialmedia.pagination import SearchResultsSetPagination
 
 from poll.models import Poll
 from poll.paginations import PollPagination
