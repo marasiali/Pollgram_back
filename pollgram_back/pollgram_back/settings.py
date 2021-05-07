@@ -162,6 +162,9 @@ AUTHENTICATION_BACKENDS = [
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'pollgram_auth.serializers.RegisterSerializer',
 }
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'pollgram_auth.serializers.LoginSerializer'
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
