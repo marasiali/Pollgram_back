@@ -5,6 +5,10 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdate
 from rest_framework.permissions import IsAuthenticated
 
 from .pagination import SearchResultsSetPagination
+
+from poll.models import Poll
+from poll.paginations import PollPagination
+from poll.serializers import PollSerializer
 from ..serializers.user import (
     UserAdminAccessSerializer,
     UserBaseAccessSerializer,
@@ -12,6 +16,7 @@ from ..serializers.user import (
     UserCoverSerializer, UserSummarySerializer,
 )
 from ..permissons import IsSelfOrReadOnly
+
 
 class UserAPIView(RetrieveUpdateDestroyAPIView):
     queryset = get_user_model()
@@ -23,15 +28,18 @@ class UserAPIView(RetrieveUpdateDestroyAPIView):
         else:
             return UserBaseAccessSerializer
 
+
 class UserAvatarAPIView(RetrieveUpdateAPIView):
     queryset = get_user_model()
     serializer_class = UserAvatarSerializer
     permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
 
+
 class UserCoverAPIView(RetrieveUpdateAPIView):
     queryset = get_user_model()
     serializer_class = UserCoverSerializer
     permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
+
 
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
@@ -43,3 +51,16 @@ class UserListAPIView(ListAPIView):
     pagination_class = SearchResultsSetPagination
 
     serializer_class = UserSummarySerializer
+
+
+class UserTimelineListAPIView(ListAPIView):
+    pagination_class = PollPagination
+    serializer_class = PollSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        followings = self.request.user.get_followings().prefetch_related('polls')
+        polls = Poll.objects.none()
+        for following in followings:
+            polls = polls | following.polls.all()
+        return polls
