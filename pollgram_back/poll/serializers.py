@@ -1,18 +1,11 @@
 from rest_framework import serializers
 
 from poll.models import Poll, Choice, Vote
-from socialmedia.models import User
-
-
-class CreatorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'avatar', 'username', 'first_name', 'last_name',)
-        read_only_fields = ('id', 'avatar',)
+from socialmedia.serializers.user import UserSummarySerializer
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
-    vote_count = serializers.SerializerMethodField()
+    vote_count = serializers.IntegerField(source='get_votes.count', read_only=True)
     poll = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
@@ -20,12 +13,9 @@ class ChoiceSerializer(serializers.ModelSerializer):
         fields = ('id', 'order', 'context', 'poll', 'vote_count')
         read_only_fields = ('id',)
 
-    def get_vote_count(self, obj):
-        return obj.votes.count()
-
 
 class PollSerializer(serializers.ModelSerializer):
-    creator = CreatorSerializer(read_only=True)
+    creator = UserSummarySerializer(read_only=True)
     choices = ChoiceSerializer(many=True)
 
     class Meta:
@@ -40,10 +30,6 @@ class PollSerializer(serializers.ModelSerializer):
         for choice in choices:
             Choice.objects.create(poll=poll, **choice)
         return poll
-
-    def to_representation(self, instance):
-        representation = super(PollSerializer, self).to_representation(instance)
-        return representation
 
 
 class VoteSerializer(serializers.ModelSerializer):
