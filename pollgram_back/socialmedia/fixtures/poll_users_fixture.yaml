@@ -1,0 +1,97 @@
+-   model: socialmedia.user
+    pk: 1
+    fields:
+        password: pbkdf2_sha256$216000$jaqx2F4t6z2I$Wha95/Qr0g0fQDYayyOQdqKECGoBu/PeE/UKwqOz1OM=
+        last_login: 2021-05-07 10:46:36.786789+00:00
+        is_superuser: false
+        username: ali
+        first_name: ali
+        last_name: goli
+        email: ali@gmail.com
+        is_staff: false
+        is_active: true
+        date_joined: 2021-05-07 10:31:08.205840+00:00
+        is_public: true
+        is_verified: false
+        groups: []
+        user_permissions: []
+-   model: socialmedia.user
+    pk: 2
+    fields:
+        password: pbkdf2_sha256$216000$Nc4tvPgn7ukf$OqbSCKQBmjAfap5qZJcVkPtJ8ps5ITrxYEgyQ3fV9mQ=
+        last_login: 2021-05-13 11:41:47.935889+00:00
+        is_superuser: false
+        username: sadra
+        first_name: sadra
+        last_name: hakim
+        email: sadra@gamil.com
+        is_staff: false
+        is_active: true
+        date_joined: 2021-05-07 10:42:21.781922+00:00
+        is_public: true
+        is_verified: false
+        groups: []
+        user_permissions: []
+-   model: socialmedia.user
+    pk: 3
+    fields:
+        password: pbkdf2_sha256$216000$r6d3crozvGYi$e8plm/9pmNG1Rlv9HqGPtiexfEtKzPjw4fVguAu94Ew=
+        last_login: 2021-05-13 22:13:55.560317+00:00
+        is_superuser: false
+        username: mehdi
+        first_name: mehdi
+        last_name: setayande
+        email: mehdi@gmail.com
+        is_staff: false
+        is_active: true
+        date_joined: 2021-05-07 10:51:56.318052+00:00
+        is_public: true
+        is_verified: false
+        groups: []
+        user_permissions: []
+-   model: socialmedia.user
+    pk: 4
+    fields:
+        password: pbkdf2_sha256$216000$H0378fptWwcc$dLiaDnbZbrbX2ka4EymHYpsc+kLjlqqELQwPmBqKpzM=
+        last_login: 2021-05-13 13:27:23.298748+00:00
+        is_superuser: true
+        username: reza
+        first_name: ''
+        last_name: ''
+        email: ''
+        is_staff: true
+        is_active: true
+        date_joined: 2021-05-13 11:15:05.618778+00:00
+        is_public: true
+        is_verified: false
+        groups: []
+        user_permissions: []
+-   model: socialmedia.user
+    pk: 5
+    fields:
+        password: pbkdf2_sha256$216000$A2TxNCm6VYe3$Vs7d+VOq3ZqY6k/iGKs8NkuMxlVd7QiH3R2SoYuIl4s=
+        last_login: 2021-05-13 23:21:32.319003+00:00
+        is_superuser: false
+        username: mohsen
+        first_name: mohsen
+        last_name: chavoshi
+        email: mohsen@gmail.com
+        is_staff: false
+        is_active: true
+        date_joined: 2021-05-13 23:21:00.082584+00:00
+        is_public: true
+        is_verified: false
+        groups: []
+        user_permissions: []
+-   model: socialmedia.followrelationship
+    pk: 1
+    fields:
+        from_user: 3
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 2
+    fields:
+        from_user: 3
+        to_user: 2
+        pending: false
