@@ -1,0 +1,119 @@
+-   model: poll.poll
+    pk: 1
+    fields:
+        creator: 1
+        created_at: 2021-05-07 10:38:20.716133+00:00
+        question: what's your favourite color
+        description: color poll
+-   model: poll.poll
+    pk: 2
+    fields:
+        creator: 1
+        created_at: 2021-05-07 10:41:04.238625+00:00
+        question: what's your favourite food
+        description: food poll
+-   model: poll.poll
+    pk: 3
+    fields:
+        creator: 2
+        created_at: 2021-05-07 10:44:34.887776+00:00
+        question: what's your favourite car
+        description: car poll
+-   model: poll.poll
+    pk: 4
+    fields:
+        creator: 2
+        created_at: 2021-05-07 10:46:10.572990+00:00
+        question: what's your favourite hand
+        description: hand poll
+-   model: poll.poll
+    pk: 5
+    fields:
+        creator: 1
+        created_at: 2021-05-07 10:47:33.480636+00:00
+        question: what's your favourite fruit
+        description: fruit poll
+-   model: poll.choice
+    pk: 1
+    fields:
+        context: red
+        poll: 1
+        order: 1
+-   model: poll.choice
+    pk: 2
+    fields:
+        context: green
+        poll: 1
+        order: 2
+-   model: poll.choice
+    pk: 3
+    fields:
+        context: blue
+        poll: 1
+        order: 3
+-   model: poll.choice
+    pk: 4
+    fields:
+        context: burger
+        poll: 2
+        order: 1
+-   model: poll.choice
+    pk: 5
+    fields:
+        context: bread and cheese
+        poll: 2
+        order: 2
+-   model: poll.choice
+    pk: 6
+    fields:
+        context: chicken
+        poll: 2
+        order: 3
+-   model: poll.choice
+    pk: 7
+    fields:
+        context: pride
+        poll: 3
+        order: 1
+-   model: poll.choice
+    pk: 8
+    fields:
+        context: BMW
+        poll: 3
+        order: 2
+-   model: poll.choice
+    pk: 9
+    fields:
+        context: Ford
+        poll: 3
+        order: 3
+-   model: poll.choice
+    pk: 10
+    fields:
+        context: Left
+        poll: 4
+        order: 1
+-   model: poll.choice
+    pk: 11
+    fields:
+        context: Right
+        poll: 4
+        order: 2
+-   model: poll.choice
+    pk: 12
+    fields:
+        context: banana
+        poll: 5
+        order: 1
+-   model: poll.choice
+    pk: 13
+    fields:
+        context: apple
+        poll: 5
+        order: 2
+-   model: poll.choice
+    pk: 14
+    fields:
+        context: orange
+        poll: 5
+        order: 3
