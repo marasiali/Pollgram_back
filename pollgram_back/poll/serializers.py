@@ -20,7 +20,7 @@ class PollSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Poll
-        fields = ('id', 'created_at', 'question', 'description', 'creator', 'choices',)
+        fields = ('id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable')
         read_only_fields = ('id',)
 
     def create(self, validated_data):
