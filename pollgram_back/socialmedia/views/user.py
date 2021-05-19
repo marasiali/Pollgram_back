@@ -9,7 +9,7 @@ from socialmedia.pagination import SearchResultsSetPagination
 
 from poll.models import Poll
 from poll.paginations import PollPagination
-from poll.serializers import PollSerializer
+from poll.serializers import PollCreateSerializer
 from ..serializers.user import (
     UserAdminAccessSerializer,
     UserBaseAccessSerializer,
@@ -56,7 +56,7 @@ class UserListAPIView(ListAPIView):
 
 class UserTimelineListAPIView(ListAPIView):
     pagination_class = PollPagination
-    serializer_class = PollSerializer
+    serializer_class = PollCreateSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -69,7 +69,7 @@ class UserTimelineListAPIView(ListAPIView):
 
 class PollListAPIView(ListAPIView):
     pagination_class = PollPagination
-    serializer_class = PollSerializer
+    serializer_class = PollCreateSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
