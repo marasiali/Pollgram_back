@@ -42,10 +42,17 @@ class Poll(models.Model):
     def __str__(self):
         return 'Poll = id: {}, creator: {}, question: {}'.format(self.id, self.creator, self.question)
 
+
 class Choice(models.Model):
     context = models.CharField(max_length=100)
-    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
-    order = models.IntegerField()
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices', )
+    order = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)])
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['poll', 'order']),
+        ]
+        unique_together = ['poll', 'order']
 
     def get_votes(self):
         return self.votes.all()
@@ -56,7 +63,7 @@ class Choice(models.Model):
 
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='votes')
-    selected = models.ForeignKey(Choice, on_delete=models.CASCADE, related_name='votes')
+    selected = models.ManyToManyField(Choice, related_name='votes')
 
     def __str__(self):
         return 'Vote = id: {}, userId: {}, choiceId: {}'.format(self.id, self.user.id, self.selected.id)
