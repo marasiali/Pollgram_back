@@ -108,37 +108,41 @@ class RetrieveFollowRelationshipAPITest(APITestCase):
         FollowRelationship.objects.create(from_user=self.user2, to_user=self.user3, pending=False)
         FollowRelationship.objects.create(from_user=self.user3, to_user=self.user1, pending=False)
 
-    def test_follow_status_api(self):
-        self_response = self.client.get('/api/user/2/follow/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(self_response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-        self.assertEqual(self_response.data, {
+    def test_self_follow_status_api(self):
+        response = self.client.get('/api/user/2/follow/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertEqual(response.data, {
             "status": None
         })
 
-        notfollowed_response = self.client.get('/api/user/1/follow/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(notfollowed_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(notfollowed_response.data, {
+    def test_notfollowed_status_api(self):
+        response = self.client.get('/api/user/1/follow/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
             "status": "NotFollowed"
         })
 
-        followed_response = self.client.get('/api/user/3/follow/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(followed_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(followed_response.data, {
+    def test_followed_status_api(self):
+        response = self.client.get('/api/user/3/follow/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
             "status": "Followed"
         })
 
-    def test_follow_status_in_user_info_api(self):
-        self_response = self.client.get('/api/user/2/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(self_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self_response.data['follow_status'], None)
+    def test_self_follow_status_in_user_info_api(self):
+        response = self.client.get('/api/user/2/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['follow_status'], None)
 
-        notfollowed_response = self.client.get('/api/user/1/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(notfollowed_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(notfollowed_response.data['follow_status'], "NotFollowed")
+    def test_notfollowed_status_in_user_info_api(self):
+        response = self.client.get('/api/user/1/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['follow_status'], "NotFollowed")
 
-        followed_response = self.client.get('/api/user/3/', HTTP_AUTHORIZATION=self.user2_token)
-        self.assertEqual(followed_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(followed_response.data['follow_status'], "Followed")
+    def test_followed_status_in_user_info_api(self):
+        response = self.client.get('/api/user/3/', HTTP_AUTHORIZATION=self.user2_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['follow_status'], "Followed")
 
     def test_follow_count_in_user_info_api(self):
         response = self.client.get('/api/user/3/', HTTP_AUTHORIZATION=self.user2_token)

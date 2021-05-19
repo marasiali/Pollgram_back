@@ -7,6 +7,7 @@ class Poll(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     question = models.CharField(max_length=200)
     description = models.TextField()
+    is_commentable = models.BooleanField(default=True)
 
     class Meta:
         ordering = ('-created_at',)
