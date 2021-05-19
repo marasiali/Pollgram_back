@@ -28,10 +28,12 @@ class User(AbstractUser):
     followings = models.ManyToManyField("self", related_name='followers', symmetrical=False, through='FollowRelationship')
 
     def get_followers(self):
-        return self.followers.filter(follows_relationships__pending=False)
+        # sort results have added to have a stable response
+        return self.followers.filter(follows_relationships__pending=False).order_by('-id')
 
     def get_followings(self):
-        return self.followings.filter(followed_relationships__pending=False)
+        # sort results have added to have a stable response
+        return self.followings.filter(followed_relationships__pending=False).order_by('-id')
 
     def get_follow_status(self, to_user):
         if self == to_user:

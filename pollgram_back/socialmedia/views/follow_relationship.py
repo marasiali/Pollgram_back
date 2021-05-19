@@ -17,13 +17,20 @@ class FollowAPIView(APIView):
     def get(self, request, pk):
         to_user = get_object_or_404(get_user_model(), pk=pk)
         follow_status = request.user.get_follow_status(to_user=to_user)
-        return Response({
+        if request.user == to_user:
+            return Response({
             "status": follow_status
-        })
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        else:
+            return Response({
+            "status": follow_status
+            })
 
     def post(self, request, pk):
         to_user = get_object_or_404(get_user_model(), pk=pk)
-        if FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
+        if request.user == to_user:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        elif FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
             return Response(status=status.HTTP_409_CONFLICT)
         elif to_user.is_public:
             FollowRelationship.objects.create(
@@ -40,7 +47,9 @@ class FollowAPIView(APIView):
 
     def delete(self, request, pk):
         to_user = get_object_or_404(get_user_model(), pk=pk)
-        if not FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
+        if request.user == to_user:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        elif not FollowRelationship.objects.filter(from_user=request.user, to_user=to_user).exists():
             return Response(status=status.HTTP_409_CONFLICT)
         else:
             FollowRelationship.objects.filter(
