@@ -16,6 +16,11 @@ class Image(models.Model):
 
 
 class Poll(models.Model):
+    class PollVisibilityStatus(models.TextChoices):
+        VISIBLE = 'VI', 'visible'
+        VISIBLE_AFTER_VOTE = 'VA', 'visible_after_vote'
+        HIDDEN = 'HI', 'hidden'
+
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='polls')
     created_at = models.DateTimeField(auto_now_add=True)
     question = models.CharField(max_length=200)
@@ -27,6 +32,9 @@ class Poll(models.Model):
     min_choice_can_vote = models.IntegerField(blank=True, default=1)
     link = models.URLField(blank=True)
     is_vote_retractable = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=True)
+    visibility_status = models.CharField(max_length=2, choices=PollVisibilityStatus.choices,
+                                         default=PollVisibilityStatus.VISIBLE_AFTER_VOTE)
 
     def get_image(self):
         if Image.objects.filter(id=self.image.id).exits():
