@@ -64,7 +64,7 @@ class UserTimelineListAPIView(ListAPIView):
         polls = Poll.objects.none()
         for following in followings:
             polls = polls | following.polls.all()
-        return polls
+        return polls | self.request.user.polls.all()
 
 
 class PollListAPIView(ListAPIView):
