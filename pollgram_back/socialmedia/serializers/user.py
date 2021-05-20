@@ -83,6 +83,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'avatar',
+            'bio',
             'is_public',
             'is_verified',
         )
@@ -92,6 +93,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'avatar',
+            'bio',
             'is_public',
             'is_verified',
         )
