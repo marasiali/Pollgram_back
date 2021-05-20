@@ -7,13 +7,34 @@ from rest_framework.views import APIView
 
 from .models import Poll, Vote, Image, File
 from .permissions import IsCreatorOrReadOnly
-from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, PollRetrieveSerializer, VoteSerializer
+from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, PollRetrieveVisibleSerializer, \
+    VoteSerializer, PollRetrieveInvisibleSerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Poll.objects.all()
-    serializer_class = PollRetrieveSerializer
+    visible_poll_serializer_class = PollRetrieveVisibleSerializer
+    invisible_poll_serializer_class = PollRetrieveInvisibleSerializer
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnly]
+
+    def get_serializer_class(self):
+        poll = get_object_or_404(Poll, pk=self.kwargs['pk'])
+        visibility_status = poll.visibility_status
+        if visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
+                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and self.is_already_voted()):
+            return self.visible_poll_serializer_class
+        elif visibility_status == Poll.PollVisibilityStatus.HIDDEN or (
+                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and not self.is_already_voted()):
+            return self.invisible_poll_serializer_class
+        else:
+            return Response({
+                "status": "unknown poll visibility status"
+            })
+
+    def is_already_voted(self):
+        user = self.request.user
+        poll = get_object_or_404(Poll, pk=self.kwargs['pk'])
+        return poll.choices.filter(votes__user=user).exists()
 
 
 class PollCreateAPIView(CreateAPIView):
@@ -44,15 +65,20 @@ class VoteAPIView(APIView):
     def delete(self, request, poll_pk):
         user = request.user
         poll = get_object_or_404(Poll, pk=poll_pk)
-        if not poll.choices.filter(votes__user=user).exists():
+        if poll.is_vote_retractable:
+            if not poll.choices.filter(votes__user=user).exists():
+                return Response({
+                    "status": "not voted yet"
+                }, status=status.HTTP_409_CONFLICT)
+            choices = poll.choices.all()
+            Vote.objects.filter(user=user, selected__in=choices).delete()
             return Response({
-                "status": "not voted yet"
+                "status": "vote retracted"
+            }, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({
+                "status": "this poll is not vote retractable"
             }, status=status.HTTP_409_CONFLICT)
-        choices = poll.choices.filter(order__in=request.data['selected'])
-        Vote.objects.filter(user=user, selected__in=choices).delete()
-        return Response({
-            "status": "vote retracted"
-        }, status=status.HTTP_204_NO_CONTENT)
 
 
 class ImageCreateAPIView(CreateAPIView):
