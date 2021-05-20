@@ -5,10 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Poll, Vote, Image, File
+from socialmedia.models import User
+from .models import Poll, Vote, Image, File, Choice
 from .permissions import IsCreatorOrReadOnly
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, PollRetrieveVisibleSerializer, \
-    VoteSerializer, PollRetrieveInvisibleSerializer
+    VoteSerializer, PollRetrieveInvisibleSerializer, VoterUserSerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -29,7 +30,7 @@ class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
         else:
             return Response({
                 "status": "unknown poll visibility status"
-            })
+            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def is_already_voted(self):
         user = self.request.user
@@ -78,6 +79,31 @@ class VoteAPIView(APIView):
         else:
             return Response({
                 "status": "this poll is not vote retractable"
+            }, status=status.HTTP_409_CONFLICT)
+
+
+class VotersListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, poll_pk, order):
+        poll = get_object_or_404(Poll, pk=poll_pk)
+        choice = get_object_or_404(Choice, poll=poll, order=order)
+        print(choice)
+
+        if poll.is_public:
+            if poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
+                    poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and poll.choices.filter(
+                    votes__user=request.user).exists()):
+                user_ids = choice.votes.all().values_list('user', flat=True)
+                users = User.objects.filter(id__in=user_ids)
+                return Response(VoterUserSerializer(users, many=True).data, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "status": "result is hidden"
+                })
+        else:
+            return Response({
+                "status": "poll is not public"
             }, status=status.HTTP_409_CONFLICT)
 
 
