@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice
+from .paginations import VotersPagination
 from .permissions import IsCreatorOrReadOnly
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, PollRetrieveVisibleSerializer, \
     VoteSerializer, PollRetrieveInvisibleSerializer, VoterUserSerializer
@@ -82,13 +83,12 @@ class VoteAPIView(APIView):
             }, status=status.HTTP_409_CONFLICT)
 
 
-class VotersListAPIView(APIView):
+class VotersListAPIView(APIView, VotersPagination):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, poll_pk, order):
         poll = get_object_or_404(Poll, pk=poll_pk)
         choice = get_object_or_404(Choice, poll=poll, order=order)
-        print(choice)
 
         if poll.is_public:
             if poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
