@@ -80,7 +80,7 @@ class VoteAPIView(APIView):
         else:
             return Response({
                 "status": "this poll is not vote retractable"
-            }, status=status.HTTP_409_CONFLICT)
+            }, status=status.HTTP_403_FORBIDDEN)
 
 
 class VotersListAPIView(APIView, VotersPagination):
@@ -104,7 +104,7 @@ class VotersListAPIView(APIView, VotersPagination):
         else:
             return Response({
                 "status": "poll is not public"
-            }, status=status.HTTP_409_CONFLICT)
+            }, status=status.HTTP_403_FORBIDDEN)
 
 
 class ImageCreateAPIView(CreateAPIView):
