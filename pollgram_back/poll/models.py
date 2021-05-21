@@ -30,19 +30,11 @@ class Poll(models.Model):
     file = models.ForeignKey(File, on_delete=models.SET_NULL, related_name='polls', null=True)
     max_choice_can_vote = models.PositiveSmallIntegerField(default=1, validators=[MaxValueValidator(10)])
     min_choice_can_vote = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
-    link = models.URLField(blank=True)
+    attached_http_link = models.URLField(blank=True)
     is_vote_retractable = models.BooleanField(default=True)
     is_public = models.BooleanField(default=True)
     visibility_status = models.CharField(max_length=2, choices=PollVisibilityStatus.choices,
                                          default=PollVisibilityStatus.VISIBLE_AFTER_VOTE)
-
-    def get_image(self):
-        if Image.objects.filter(id=self.image.id).exits():
-            return Image.objects.get(id=self.image.id)
-
-    def get_file(self):
-        if File.objects.filter(id=self.file.id).exists():
-            return File.objects.get(id=self.file.id)
 
     class Meta:
         ordering = ('-created_at',)
@@ -53,7 +45,7 @@ class Poll(models.Model):
 
 class Choice(models.Model):
     context = models.CharField(max_length=100)
-    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices', )
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
     order = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)])
 
     class Meta:
