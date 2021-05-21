@@ -67,17 +67,24 @@ class PollTest(APITestCase):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         vote_count_before = Choice.objects.get(id=2).votes.count()
-        response = self.client.post('/api/poll/vote/2/', format='json', HTTP_AUTHORIZATION=token)
+        response = self.client.post('/api/poll/vote/1/', {
+            "selected": [2]
+        }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(vote_count_before + 1, Choice.objects.get(id=2).votes.count())
-        self.assertEqual(2, response.data['choice_id'])
-        self.assertEqual(2, response.data['user_id'])
+        print(response.data)
+        self.assertEqual(2, response.data['orders'][0])
+        self.assertEqual(2, response.data['user'])
 
     def test_vote_already_voted(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        self.client.post('/api/poll/vote/2/', format='json', HTTP_AUTHORIZATION=token)
+        self.client.post('/api/poll/vote/1/', {
+            "selected": [2]
+        }, format='json', HTTP_AUTHORIZATION=token)
         vote_count_before = Choice.objects.get(id=2).votes.count()
-        response = self.client.post('/api/poll/vote/2/', format='json', HTTP_AUTHORIZATION=token)
+        response = self.client.post('/api/poll/vote/1/', {
+            "selected": [2]
+        }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_409_CONFLICT, response.status_code)
         self.assertEqual(vote_count_before, Choice.objects.get(id=2).votes.count())
