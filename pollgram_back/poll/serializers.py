@@ -43,8 +43,8 @@ class PollCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
         fields = (
-            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'link', 'image',
-            'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
+            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
+            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
             'visibility_status')
         read_only_fields = ('id',)
 
@@ -68,9 +68,9 @@ class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
         fields = (
-            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'link', 'image',
-            'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'all_votes', 'is_public',
-            'visibility_status', 'voted_choices')
+            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
+            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'all_votes',
+            'is_public', 'visibility_status', 'voted_choices')
         read_only_fields = ('id',)
 
     def get_all_votes(self, obj):
@@ -81,7 +81,7 @@ class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
 
     def get_user_voted_choices(self, obj):
         user = self.context['request'].user
-        voted_choice_ids = obj.choices.filter(votes__user=user).values_list('id', flat=True)
+        voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
 
 
@@ -94,8 +94,8 @@ class PollRetrieveInvisibleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
         fields = (
-            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'link', 'image',
-            'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
+            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
+            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
             'visibility_status')
         read_only_fields = ('id',)
 
