@@ -1,18 +1,18 @@
 import uuid
 
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from socialmedia.models import User
 
 
 class File(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, verbose_name='id', default=uuid.uuid4)
-    file = models.FileField(upload_to='files/%Y/%m/%d/' + str(id), blank=True, null=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    file = models.FileField(upload_to='polls/files/%Y/%m/%d/' + str(id), blank=True, null=True)
 
 
 class Image(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, verbose_name='id', default=uuid.uuid4)
-    image = models.ImageField(upload_to='images/%Y/%m/%d/' + str(id), blank=True, null=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    image = models.ImageField(upload_to='polls/images/%Y/%m/%d/' + str(id), blank=True, null=True)
 
 
 class Poll(models.Model):
