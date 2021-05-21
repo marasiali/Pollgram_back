@@ -40,7 +40,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "${POSTGRES_EXPOSE_ON_PORT}:5432"
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -61,16 +61,16 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ~/backend/postgres/
+      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/postgres/"
   static_volume:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ~/backend/static/
+      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/static/"
   media_volume:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ~/backend/media/
+      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/media/"
