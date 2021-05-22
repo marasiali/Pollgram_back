@@ -80,7 +80,10 @@ class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
         return vote_counter
 
     def get_user_voted_choices(self, obj):
-        user = self.context['request'].user
+        if hasattr(self.context, 'request'):
+            user = self.context['request'].user
+        else:
+            user = obj.creator
         voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
 
