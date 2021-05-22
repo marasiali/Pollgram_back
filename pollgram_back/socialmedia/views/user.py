@@ -1,15 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.authtoken.admin import User
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from socialmedia.pagination import SearchResultsSetPagination
 
 from poll.models import Poll
 from poll.paginations import PollPagination
-from poll.serializers import PollCreateSerializer
+from poll.serializers import PollRetrieveVisibleSerializer, PollRetrieveInvisibleSerializer
 from ..serializers.user import (
     UserAdminAccessSerializer,
     UserBaseAccessSerializer,
@@ -54,24 +56,41 @@ class UserListAPIView(ListAPIView):
     serializer_class = UserSummarySerializer
 
 
-class UserTimelineListAPIView(ListAPIView):
-    pagination_class = PollPagination
-    serializer_class = PollCreateSerializer
+class UserTimelineListAPIView(APIView, PollPagination):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
+    def get(self, request):
         followings = self.request.user.get_followings().prefetch_related('polls')
         polls = Poll.objects.none()
         for following in followings:
             polls = polls | following.polls.all()
-        return polls | self.request.user.polls.all()
+        polls = polls | self.request.user.polls.all()
+        return serialize_polls(polls, self.request.user)
 
 
-class PollListAPIView(ListAPIView):
-    pagination_class = PollPagination
-    serializer_class = PollCreateSerializer
+class PollListAPIView(APIView, PollPagination):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = get_object_or_404(get_user_model(), id=self.kwargs['pk'])
-        return user.polls.all()
+    def get(self, request, pk):
+        user = get_object_or_404(get_user_model(), id=pk)
+        polls = user.polls.all()
+        return serialize_polls(polls, user)
+
+
+def serialize_polls(polls, user):
+    serialized_polls = list()
+    for poll in polls:
+        visibility_status = poll.visibility_status
+        if visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
+                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and is_already_voted(poll))\
+                or poll.creator == user:
+            serialized_polls.append(PollRetrieveVisibleSerializer(poll).data)
+        elif visibility_status == Poll.PollVisibilityStatus.HIDDEN or (
+                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and not is_already_voted(poll)):
+            serialized_polls.append(PollRetrieveInvisibleSerializer(poll).data)
+    return Response(serialized_polls, status=status.HTTP_200_OK)
+
+
+def is_already_voted(poll):
+    user = poll.creator
+    return poll.choices.filter(votes__user=user).exists()
