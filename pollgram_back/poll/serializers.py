@@ -19,32 +19,30 @@ class ImageSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class ChoiceVisibleCountSerializer(serializers.ModelSerializer):
-    vote_count = serializers.IntegerField(source='get_votes.count', read_only=True)
+class ChoiceSerializer(serializers.ModelSerializer):
+    vote_count = serializers.IntegerField(default=None, read_only=True)
     poll = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Choice
         fields = ('order', 'context', 'poll', 'vote_count')
 
-
-class ChoiceInvisibleCountSerializer(serializers.ModelSerializer):
-    poll = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Choice
-        fields = ('order', 'context', 'poll',)
+    def to_representation(self, instance):
+        data = super(ChoiceSerializer, self).to_representation(instance)
+        if self.context['request'].user.can_see_poll(instance.poll):
+            data['vote_count'] = instance.get_votes().count()
+        return data
 
 
 class PollCreateSerializer(serializers.ModelSerializer):
     creator = UserSummarySerializer(read_only=True)
-    choices = ChoiceVisibleCountSerializer(many=True)
+    choices = ChoiceSerializer(many=True)
 
     class Meta:
         model = Poll
         fields = (
             'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
-            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
+            'image', 'file', 'min_choice_can_vote', 'max_choice_can_vote', 'is_vote_retractable', 'is_public',
             'visibility_status')
         read_only_fields = ('id',)
 
@@ -57,13 +55,32 @@ class PollCreateSerializer(serializers.ModelSerializer):
         return poll
 
 
-class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
+class VoteResponseSerializer(serializers.ModelSerializer):
+    selected = serializers.SerializerMethodField('get_selected_votes')
+
+    class Meta:
+        model = Vote
+        fields = ('selected',)
+
+    def get_selected_votes(self, obj):
+        voted_orders = obj.selected.all().values_list('order', flat=True)
+        return voted_orders
+
+
+class VoterUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'avatar')
+        read_only_fields = ('id', 'avatar')
+
+
+class PollRetrieveSerializer(serializers.ModelSerializer):
     creator = UserSummarySerializer(read_only=True)
-    choices = ChoiceVisibleCountSerializer(many=True)
-    all_votes = serializers.SerializerMethodField('get_all_votes')
+    choices = ChoiceSerializer(many=True)
+    all_votes = serializers.IntegerField(default=None)
     image = ImageSerializer()
     file = FileSerializer()
-    voted_choices = serializers.SerializerMethodField('get_user_voted_choices')
+    voted_choices = serializers.ListField(default=None)
 
     class Meta:
         model = Poll
@@ -72,6 +89,13 @@ class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
             'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'all_votes',
             'is_public', 'visibility_status', 'voted_choices')
         read_only_fields = ('id',)
+
+    def to_representation(self, instance):
+        data = super(PollRetrieveSerializer, self).to_representation(instance)
+        if self.context['request'].user.can_see_poll(instance):
+            data['all_votes'] = self.get_all_votes(instance)
+            data['voted_choices'] = self.get_user_voted_choices(instance)
+        return data
 
     def get_all_votes(self, obj):
         vote_counter = 0
@@ -87,37 +111,3 @@ class PollRetrieveVisibleSerializer(serializers.ModelSerializer):
         voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
 
-
-class PollRetrieveInvisibleSerializer(serializers.ModelSerializer):
-    creator = UserSummarySerializer(read_only=True)
-    choices = ChoiceInvisibleCountSerializer(many=True)
-    image = ImageSerializer()
-    file = FileSerializer()
-
-    class Meta:
-        model = Poll
-        fields = (
-            'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
-            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
-            'visibility_status')
-        read_only_fields = ('id',)
-
-
-class VoteSerializer(serializers.ModelSerializer):
-    orders = serializers.SerializerMethodField('get_voted_orders')
-
-    class Meta:
-        model = Vote
-        fields = ('user', 'id', 'orders')
-        read_only_fields = ('id',)
-
-    def get_voted_orders(self, obj):
-        voted_orders = obj.selected.all().values_list('order', flat=True)
-        return voted_orders
-
-
-class VoterUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'first_name', 'last_name', 'avatar')
-        read_only_fields = ('id', 'avatar')
