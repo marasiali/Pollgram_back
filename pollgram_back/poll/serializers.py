@@ -20,7 +20,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
-    vote_count = serializers.IntegerField(default=-1, read_only=True)
+    vote_count = serializers.IntegerField(default=None, read_only=True)
     poll = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
@@ -29,16 +29,9 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(ChoiceSerializer, self).to_representation(instance)
-        visibility_status = instance.poll.visibility_status
-        if visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
-                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and self.is_already_voted(instance.poll)) \
-                or instance.poll.creator == self.context['request'].user:
+        if self.context['request'].user.can_see_poll(instance.poll):
             data['vote_count'] = instance.get_votes().count()
         return data
-
-    def is_already_voted(self, poll):
-        user = poll.creator
-        return poll.choices.filter(votes__user=user).exists()
 
 
 class PollCreateSerializer(serializers.ModelSerializer):
@@ -49,7 +42,7 @@ class PollCreateSerializer(serializers.ModelSerializer):
         model = Poll
         fields = (
             'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
-            'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'is_public',
+            'image', 'file', 'min_choice_can_vote', 'max_choice_can_vote', 'is_vote_retractable', 'is_public',
             'visibility_status')
         read_only_fields = ('id',)
 
@@ -62,15 +55,14 @@ class PollCreateSerializer(serializers.ModelSerializer):
         return poll
 
 
-class VoteSerializer(serializers.ModelSerializer):
-    orders = serializers.SerializerMethodField('get_voted_orders')
+class VoteResponseSerializer(serializers.ModelSerializer):
+    selected = serializers.SerializerMethodField('get_selected_votes')
 
     class Meta:
         model = Vote
-        fields = ('user', 'id', 'orders')
-        read_only_fields = ('id',)
+        fields = ('selected',)
 
-    def get_voted_orders(self, obj):
+    def get_selected_votes(self, obj):
         voted_orders = obj.selected.all().values_list('order', flat=True)
         return voted_orders
 
@@ -85,10 +77,10 @@ class VoterUserSerializer(serializers.ModelSerializer):
 class PollRetrieveSerializer(serializers.ModelSerializer):
     creator = UserSummarySerializer(read_only=True)
     choices = ChoiceSerializer(many=True)
-    all_votes = serializers.IntegerField(default=-1)
+    all_votes = serializers.IntegerField(default=None)
     image = ImageSerializer()
     file = FileSerializer()
-    voted_choices = serializers.ListField(default=[])
+    voted_choices = serializers.ListField(default=None)
 
     class Meta:
         model = Poll
@@ -100,10 +92,7 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PollRetrieveSerializer, self).to_representation(instance)
-        visibility_status = data['visibility_status']
-        if visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
-                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and self.is_already_voted(instance)) \
-                or data['creator'] == self.context['request'].user:
+        if self.context['request'].user.can_see_poll(instance):
             data['all_votes'] = self.get_all_votes(instance)
             data['voted_choices'] = self.get_user_voted_choices(instance)
         return data
@@ -122,6 +111,3 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
         voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
 
-    def is_already_voted(self, poll):
-        user = poll.creator
-        return poll.choices.filter(votes__user=user).exists()
