@@ -10,7 +10,7 @@ from .models import Poll, Vote, Image, File, Choice
 from .paginations import VotersPagination
 from .permissions import IsCreatorOrReadOnly
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
-    VoteSerializer, VoterUserSerializer, PollRetrieveSerializer
+    VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -35,14 +35,19 @@ class VoteAPIView(APIView):
             return Response({
                 "status": "already voted"
             }, status=status.HTTP_409_CONFLICT)
-        choices = poll.choices.filter(order__in=request.data['selected'])
+        choices = poll.choices.filter(order__in=request.data.get('selected'))
+        if not choices:
+            return Response({
+                "selected": "this field is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         if len(choices) < poll.min_choice_can_vote or len(choices) > poll.max_choice_can_vote:
             return Response({
                 "status": "invalid number of votes"
             }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         created_vote = Vote.objects.create(user=user)
         created_vote.selected.set(choices)
-        return Response(VoteSerializer(created_vote).data, status=status.HTTP_201_CREATED)
+        return Response(VoteResponseSerializer(created_vote).data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, poll_pk):
         user = request.user
