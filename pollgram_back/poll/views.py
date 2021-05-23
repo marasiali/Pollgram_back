@@ -9,34 +9,14 @@ from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice
 from .paginations import VotersPagination
 from .permissions import IsCreatorOrReadOnly
-from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, PollRetrieveVisibleSerializer, \
-    VoteSerializer, PollRetrieveInvisibleSerializer, VoterUserSerializer
+from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
+    VoteSerializer, VoterUserSerializer, PollRetrieveSerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Poll.objects.all()
-    visible_poll_serializer_class = PollRetrieveVisibleSerializer
-    invisible_poll_serializer_class = PollRetrieveInvisibleSerializer
+    serializer_class = PollRetrieveSerializer
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnly]
-
-    def get_serializer_class(self):
-        poll = get_object_or_404(Poll, pk=self.kwargs['pk'])
-        visibility_status = poll.visibility_status
-        if visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
-                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and self.is_already_voted()):
-            return self.visible_poll_serializer_class
-        elif visibility_status == Poll.PollVisibilityStatus.HIDDEN or (
-                visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and not self.is_already_voted()):
-            return self.invisible_poll_serializer_class
-        else:
-            return Response({
-                "status": "unknown poll visibility status"
-            }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    def is_already_voted(self):
-        user = self.request.user
-        poll = get_object_or_404(Poll, pk=self.kwargs['pk'])
-        return poll.choices.filter(votes__user=user).exists()
 
 
 class PollCreateAPIView(CreateAPIView):
@@ -92,8 +72,8 @@ class VotersListAPIView(APIView, VotersPagination):
 
         if poll.is_public:
             if poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
-                    poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and poll.choices.filter(
-                    votes__user=request.user).exists()):
+                    poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and
+                    poll.choices.filter(votes__user=request.user).exists()):
                 user_ids = choice.votes.all().values_list('user', flat=True)
                 users = User.objects.filter(id__in=user_ids)
                 return Response(VoterUserSerializer(users, many=True).data, status=status.HTTP_200_OK)
