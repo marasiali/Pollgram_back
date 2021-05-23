@@ -1,56 +1,72 @@
 -   model: socialmedia.user
     pk: 1
     fields:
-        password: pbkdf2_sha256$216000$jaqx2F4t6z2I$Wha95/Qr0g0fQDYayyOQdqKECGoBu/PeE/UKwqOz1OM= #Ab654321
-        is_superuser: false
-        username: ali
-        first_name: ali
-        last_name: goli
-        email: ali@gmail.com
-        is_public: true
-        is_verified: false
--   model: socialmedia.user
-    pk: 2
-    fields:
-        password: pbkdf2_sha256$216000$Nc4tvPgn7ukf$OqbSCKQBmjAfap5qZJcVkPtJ8ps5ITrxYEgyQ3fV9mQ= #Ab654321
-        is_superuser: false
-        username: sadra
-        first_name: sadra
-        last_name: hakim
-        email: sadra@gamil.com
-        is_public: true
-        is_verified: false
--   model: socialmedia.user
-    pk: 3
-    fields:
-        password: pbkdf2_sha256$216000$r6d3crozvGYi$e8plm/9pmNG1Rlv9HqGPtiexfEtKzPjw4fVguAu94Ew= #Ab654321
+        password: pbkdf2_sha256$216000$Ny4G8XxL2feV$JdoszZCPvoCxyH3W/kCJjc6G5NsLpLCppdccVdc1XOw=
         is_superuser: false
         username: mehdi
         first_name: mehdi
         last_name: setayande
         email: mehdi@gmail.com
+        avatar: ''
+        cover: ''
+        bio: ''
+        is_public: true
+        is_verified: false
+-   model: socialmedia.user
+    pk: 2
+    fields:
+        password: pbkdf2_sha256$216000$v8A2P6ff66G3$pZNhtUQ49GfzumF7SnCw0fPU36WBwYR0Bt0+w9FuNSQ=
+        is_superuser: false
+        username: sadra
+        first_name: sadra
+        last_name: hakim
+        email: sadra@gamil.com
+        avatar: ''
+        cover: ''
+        bio: ''
+        is_public: true
+        is_verified: false
+-   model: socialmedia.user
+    pk: 3
+    fields:
+        password: pbkdf2_sha256$216000$OWrifOkutF5G$WTKzDe9TgJj2CQTCeNAEdGV008li1zSs3onc3yMxCVE=
+        is_superuser: false
+        username: naser
+        first_name: naser
+        last_name: seyfi
+        email: naser@gmail.com
+        avatar: ''
+        cover: ''
+        bio: ''
         is_public: true
         is_verified: false
 -   model: socialmedia.user
     pk: 4
     fields:
-        password: pbkdf2_sha256$216000$H0378fptWwcc$dLiaDnbZbrbX2ka4EymHYpsc+kLjlqqELQwPmBqKpzM=
+        password: pbkdf2_sha256$216000$0yHJznOG39Ul$z69ZT0R/tIducDF4CfxuI0frW3ZybB6eup5v+4O5o2E=
+        is_superuser: false
+        username: mohsen
+        first_name: mohsen
+        last_name: chavoshi
+        email: mohsen@gmail.com
+        avatar: ''
+        cover: ''
+        bio: ''
+        is_public: true
+        is_verified: false
+-   model: socialmedia.user
+    pk: 5
+    fields:
+        password: pbkdf2_sha256$216000$lkQWiMLSD3rP$DY5WiyHBiUQ+WS0sOrgNI38oizAqpVxLnXKFvNzbPTA=
         is_superuser: true
         username: reza
         first_name: ''
         last_name: ''
         email: ''
+        is_staff: true
+        is_active: true
+        avatar: ''
+        cover: ''
+        bio: ''
         is_public: true
         is_verified: false
--   model: socialmedia.followrelationship
-    pk: 1
-    fields:
-        from_user: 3
-        to_user: 1
-        pending: false
--   model: socialmedia.followrelationship
-    pk: 2
-    fields:
-        from_user: 3
-        to_user: 2
-        pending: false

@@ -1,45 +1,171 @@
+-   model: poll.file
+    pk: 5bdb0599-30de-4a27-bac6-9e6373fb135b
+    fields:
+        file: polls/files/2021/05/22/<django.db.models.fields.UUIDField>/تکلیف۱_طراحی_زبانها.odt
+-   model: poll.image
+    pk: aff790d1-cf80-4b60-ac47-cfbf1502c60a
+    fields:
+        image: images/2021/05/17/<django.db.models.fields.UUIDField>/pic.jpg
 -   model: poll.poll
     pk: 1
     fields:
-        creator: 1
-        created_at: 2021-05-07 10:38:20.716133+00:00
-        question: what's your favourite color
-        description: about colors
+        creator: 2
+        created_at: 2021-05-18 07:14:48.518015+00:00
+        question: test qu 1
+        description: test des 1
+        is_commentable: false
+        image: aff790d1-cf80-4b60-ac47-cfbf1502c60a
+        file: null
+        max_choice_can_vote: 1
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: true
+        visibility_status: VA
 -   model: poll.poll
     pk: 2
     fields:
-        creator: 1
-        created_at: 2021-05-07 10:41:04.238625+00:00
-        question: what's your favourite food
-        description: about foods
+        creator: 2
+        created_at: 2021-05-18 15:49:18.219924+00:00
+        question: test qu 2
+        description: test des 2
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: true
+        visibility_status: VA
 -   model: poll.poll
     pk: 3
     fields:
         creator: 2
-        created_at: 2021-05-07 10:44:34.887776+00:00
-        question: what's your favourite car
-        description: about cars
+        created_at: 2021-05-20 07:36:38.263458+00:00
+        question: test qu 3
+        description: test des 3
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 3
+        min_choice_can_vote: 2
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: false
+        visibility_status: VI
 -   model: poll.poll
     pk: 4
     fields:
         creator: 2
-        created_at: 2021-05-07 10:46:10.572990+00:00
-        question: what's your favourite hand
-        description: about hands
+        created_at: 2021-05-20 08:20:37.771109+00:00
+        question: test qu 4
+        description: test des 4
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: false
+        visibility_status: VA
 -   model: poll.poll
     pk: 5
     fields:
+        creator: 2
+        created_at: 2021-05-20 08:40:36.679306+00:00
+        question: test qu 5
+        description: test des 5
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 3
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: false
+        visibility_status: HI
+-   model: poll.poll
+    pk: 6
+    fields:
+        creator: 2
+        created_at: 2021-05-20 10:07:07.846165+00:00
+        question: test qu 6
+        description: test des 6
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 3
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: true
+        visibility_status: VA
+-   model: poll.poll
+    pk: 7
+    fields:
         creator: 1
-        created_at: 2021-05-07 10:47:33.480636+00:00
-        question: what's your favourite fruit
-        description: about fruits
+        created_at: 2021-05-20 14:45:26.990320+00:00
+        question: test qu 7
+        description: test des 7
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 1
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: true
+        visibility_status: VI
+-   model: poll.poll
+    pk: 8
+    fields:
+        creator: 2
+        created_at: 2021-05-20 14:46:05.285494+00:00
+        question: test qu 8
+        description: test des 8
+        is_commentable: false
+        image: null
+        file: null
+        max_choice_can_vote: 1
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: true
+        visibility_status: VI
 -   model: poll.poll
     pk: 9
     fields:
-        creator: 5
-        created_at: 2021-05-13 23:24:32.502465+00:00
-        question: which laptop?
-        description: about laptops
+        creator: 1
+        created_at: 2021-05-21 20:29:29.783930+00:00
+        question: test qu 9
+        description: test des 9
+        is_commentable: true
+        image: null
+        file: 5bdb0599-30de-4a27-bac6-9e6373fb135b
+        max_choice_can_vote: 1
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: true
+        visibility_status: VI
+-   model: poll.poll
+    pk: 10
+    fields:
+        creator: 4
+        created_at: 2021-05-21 20:33:23.707720+00:00
+        question: test qu 10
+        description: test des 10
+        is_commentable: true
+        image: null
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: true
+        visibility_status: VA
 -   model: poll.choice
     pk: 1
     fields:
@@ -55,90 +181,309 @@
 -   model: poll.choice
     pk: 3
     fields:
-        context: blue
-        poll: 1
-        order: 3
--   model: poll.choice
-    pk: 4
-    fields:
-        context: burger
+        context: Ford
         poll: 2
         order: 1
 -   model: poll.choice
-    pk: 5
+    pk: 4
     fields:
-        context: bread and cheese
+        context: BMW
         poll: 2
         order: 2
 -   model: poll.choice
-    pk: 6
+    pk: 5
     fields:
-        context: chicken
+        context: Benz
         poll: 2
         order: 3
 -   model: poll.choice
+    pk: 6
+    fields:
+        context: Tesla
+        poll: 2
+        order: 4
+-   model: poll.choice
     pk: 7
     fields:
-        context: pride
+        context: burger
         poll: 3
         order: 1
 -   model: poll.choice
     pk: 8
     fields:
-        context: BMW
+        context: pizza
         poll: 3
         order: 2
 -   model: poll.choice
     pk: 9
     fields:
-        context: Ford
+        context: sandwich
         poll: 3
         order: 3
 -   model: poll.choice
     pk: 10
     fields:
-        context: Left
-        poll: 4
-        order: 1
+        context: potato
+        poll: 3
+        order: 4
 -   model: poll.choice
     pk: 11
     fields:
-        context: Right
+        context: Iran
         poll: 4
-        order: 2
+        order: 1
 -   model: poll.choice
     pk: 12
     fields:
-        context: banana
-        poll: 5
-        order: 1
+        context: America
+        poll: 4
+        order: 2
 -   model: poll.choice
     pk: 13
     fields:
-        context: apple
-        poll: 5
-        order: 2
+        context: Russa
+        poll: 4
+        order: 3
 -   model: poll.choice
     pk: 14
     fields:
-        context: orange
+        context: China
+        poll: 4
+        order: 4
+-   model: poll.choice
+    pk: 15
+    fields:
+        context: Ali
         poll: 5
+        order: 1
+-   model: poll.choice
+    pk: 16
+    fields:
+        context: Sadra
+        poll: 5
+        order: 2
+-   model: poll.choice
+    pk: 17
+    fields:
+        context: Reza
+        poll: 5
+        order: 3
+-   model: poll.choice
+    pk: 18
+    fields:
+        context: Saba
+        poll: 6
+        order: 1
+-   model: poll.choice
+    pk: 19
+    fields:
+        context: Parisa
+        poll: 6
+        order: 2
+-   model: poll.choice
+    pk: 20
+    fields:
+        context: AmirAli
+        poll: 6
         order: 3
 -   model: poll.choice
     pk: 21
     fields:
-        context: acer
-        poll: 9
+        context: apple
+        poll: 7
         order: 1
 -   model: poll.choice
     pk: 22
     fields:
-        context: dell
-        poll: 9
+        context: banana
+        poll: 7
         order: 2
 -   model: poll.choice
     pk: 23
     fields:
-        context: mac
+        context: orange
+        poll: 7
+        order: 3
+-   model: poll.choice
+    pk: 24
+    fields:
+        context: apple
+        poll: 8
+        order: 1
+-   model: poll.choice
+    pk: 25
+    fields:
+        context: banana
+        poll: 8
+        order: 2
+-   model: poll.choice
+    pk: 26
+    fields:
+        context: orange
+        poll: 8
+        order: 3
+-   model: poll.choice
+    pk: 27
+    fields:
+        context: Isfahan
+        poll: 9
+        order: 1
+-   model: poll.choice
+    pk: 28
+    fields:
+        context: Tehran
+        poll: 9
+        order: 2
+-   model: poll.choice
+    pk: 29
+    fields:
+        context: Mashhad
         poll: 9
         order: 3
+-   model: poll.choice
+    pk: 30
+    fields:
+        context: Tabriz
+        poll: 10
+        order: 1
+-   model: poll.choice
+    pk: 31
+    fields:
+        context: Shiraz
+        poll: 10
+        order: 2
+-   model: poll.choice
+    pk: 32
+    fields:
+        context: Zahedan
+        poll: 10
+        order: 3
+-   model: poll.vote
+    pk: 1
+    fields:
+        user: 1
+        selected: []
+-   model: poll.vote
+    pk: 2
+    fields:
+        user: 3
+        selected: []
+-   model: poll.vote
+    pk: 3
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 4
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 5
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 6
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 7
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 8
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 9
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 10
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 11
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 12
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 13
+    fields:
+        user: 4
+        selected: []
+-   model: poll.vote
+    pk: 14
+    fields:
+        user: 4
+        selected:
+        - 1
+        - 2
+-   model: poll.vote
+    pk: 22
+    fields:
+        user: 2
+        selected:
+        - 3
+        - 6
+-   model: poll.vote
+    pk: 23
+    fields:
+        user: 2
+        selected:
+        - 8
+        - 9
+-   model: poll.vote
+    pk: 24
+    fields:
+        user: 1
+        selected:
+        - 7
+        - 8
+-   model: poll.vote
+    pk: 26
+    fields:
+        user: 1
+        selected:
+        - 15
+        - 16
+        - 17
+-   model: poll.vote
+    pk: 27
+    fields:
+        user: 1
+        selected:
+        - 18
+        - 19
+-   model: poll.vote
+    pk: 28
+    fields:
+        user: 2
+        selected:
+        - 19
+        - 20
+-   model: poll.vote
+    pk: 29
+    fields:
+        user: 2
+        selected:
+        - 16
+        - 17
+-   model: poll.vote
+    pk: 35
+    fields:
+        user: 1
+        selected:
+        - 11
+        - 12
