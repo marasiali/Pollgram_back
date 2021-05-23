@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -26,28 +27,50 @@ class PollTest(APITestCase):
                 }
             ]
         }, HTTP_AUTHORIZATION=token, format='json')
+        data = response.data
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual('how old are you?', response.data['question'])
-        self.assertEqual('about age', response.data['description'])
-        self.assertEqual(1, response.data['creator']['id'])
-        self.assertEqual('ali', response.data['creator']['username'])
-        self.assertEqual(2, len(response.data['choices']))
-        self.assertEqual('48', response.data['choices'][0]['context'])
-        self.assertEqual(1, response.data['choices'][0]['order'])
-        self.assertEqual('22', response.data['choices'][1]['context'])
-        self.assertEqual(2, response.data['choices'][1]['order'])
+        self.assertEqual('how old are you?', data['question'])
+        self.assertEqual('about age', data['description'])
+        self.assertEqual(1, data['creator']['id'])
+        self.assertEqual('mehdi', data['creator']['username'])
+        self.assertEqual(2, len(data['choices']))
+        self.assertEqual('48', data['choices'][0]['context'])
+        self.assertEqual(1, data['choices'][0]['order'])
+        self.assertEqual('22', data['choices'][1]['context'])
+        self.assertEqual(2, data['choices'][1]['order'])
+
+        self.assertTrue(data['is_public'])
+        self.assertTrue(data['is_commentable'])
+        self.assertTrue(data['is_vote_retractable'])
+        self.assertEqual('', data['attached_http_link'])
+        self.assertIsNone(data['image'])
+        self.assertIsNone(data['file'])
+        self.assertEqual(1, data['max_choice_can_vote'])
+        self.assertEqual(1, data['min_choice_can_vote'])
+        self.assertEqual('VA', data['visibility_status'])
+
 
     def test_get_poll(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/3/', HTTP_AUTHORIZATION=token)
+        data = response.data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(3, response.data['id'])
-        self.assertEqual("what's your favourite car", response.data['question'])
-        self.assertEqual('car poll', response.data['description'])
-        self.assertEqual(2, response.data['creator']['id'])
-        self.assertEqual('sadra', response.data['creator']['username'])
-        self.assertEqual(3, len(response.data['choices']))
+        self.assertEqual(3, data['id'])
+        self.assertEqual('test qu 3', data['question'])
+        self.assertEqual('test des 3', data['description'])
+        self.assertEqual(2, data['creator']['id'])
+        self.assertEqual('sadra', data['creator']['username'])
+        self.assertEqual(4, len(data['choices']))
+        self.assertEqual('', data['attached_http_link'])
+        self.assertIsNone(data['file'])
+        self.assertIsNone(data['image'])
+        self.assertEqual('VI', data['visibility_status'])
+        self.assertEqual(3, data['max_choice_can_vote'])
+        self.assertEqual(2, data['min_choice_can_vote'])
+        self.assertFalse(data['is_commentable'])
+        self.assertFalse(data['is_public'])
+        self.assertFalse(data['is_vote_retractable'])
 
     def test_delete_poll_not_creator_user(self):
         user = User.objects.get(id=1)
@@ -66,13 +89,24 @@ class PollTest(APITestCase):
     def test_vote(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
+        votes = [2]
+        response = self.client.post('/api/poll/vote/9/', {
+            "selected": votes
+        }, format='json', HTTP_AUTHORIZATION=token)
+        data = response.data
+        print(data)
+        self.assertEqual(votes, list(data['orders']))
+        # choice = get_object_or_404(Choice, )
+
+
+    def test_vote_count(self):
+        user = User.objects.get(id=2)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
         vote_count_before = Choice.objects.get(id=2).votes.count()
-        response = self.client.post('/api/poll/vote/1/', {
+        response = self.client.post('/api/poll/vote/9/', {
             "selected": [2]
         }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(vote_count_before + 1, Choice.objects.get(id=2).votes.count())
-        print(response.data)
         self.assertEqual(2, response.data['orders'][0])
         self.assertEqual(2, response.data['user'])
 
@@ -88,3 +122,10 @@ class PollTest(APITestCase):
         }, format='json', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_409_CONFLICT, response.status_code)
         self.assertEqual(vote_count_before, Choice.objects.get(id=2).votes.count())
+
+    def vote(self, poll_id, voter_user_id, votes):
+        user = User.objects.get(id=voter_user_id)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        self.client.post('/api/poll/vote/' + poll_id + '/', {
+            "selected": votes
+        }, format='json', HTTP_AUTHORIZATION=token)
