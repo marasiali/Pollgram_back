@@ -6,22 +6,10 @@
     pk: aff790d1-cf80-4b60-ac47-cfbf1502c60a
     fields:
         image: images/2021/05/17/<django.db.models.fields.UUIDField>/pic.jpg
--   model: poll.poll
-    pk: 1
+-   model: poll.image
+    pk: b9a62df2-1194-47a2-b958-f72893404043
     fields:
-        creator: 2
-        created_at: 2021-05-18 07:14:48.518015+00:00
-        question: test qu 1
-        description: test des 1
-        is_commentable: false
-        image: aff790d1-cf80-4b60-ac47-cfbf1502c60a
-        file: null
-        max_choice_can_vote: 1
-        min_choice_can_vote: 1
-        attached_http_link: ''
-        is_vote_retractable: false
-        is_public: true
-        visibility_status: VA
+        image: polls/images/2021/05/22/<django.db.models.fields.UUIDField>/Screenshot_from_2021-03-17_23-27-40.png
 -   model: poll.poll
     pk: 2
     fields:
@@ -166,18 +154,38 @@
         is_vote_retractable: true
         is_public: true
         visibility_status: VA
--   model: poll.choice
-    pk: 1
+-   model: poll.poll
+    pk: 11
     fields:
-        context: red
-        poll: 1
-        order: 1
--   model: poll.choice
-    pk: 2
+        creator: 2
+        created_at: 2021-05-22 15:44:57.773272+00:00
+        question: test qu 11
+        description: test des 11
+        is_commentable: true
+        image: b9a62df2-1194-47a2-b958-f72893404043
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: true
+        visibility_status: VA
+-   model: poll.poll
+    pk: 12
     fields:
-        context: green
-        poll: 1
-        order: 2
+        creator: 1
+        created_at: 2021-05-22 19:17:28.417656+00:00
+        question: test qu 12
+        description: test des 12
+        is_commentable: true
+        image: null
+        file: null
+        max_choice_can_vote: 3
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: true
+        visibility_status: VA
 -   model: poll.choice
     pk: 3
     fields:
@@ -358,6 +366,48 @@
         context: Zahedan
         poll: 10
         order: 3
+-   model: poll.choice
+    pk: 33
+    fields:
+        context: Ford
+        poll: 11
+        order: 1
+-   model: poll.choice
+    pk: 34
+    fields:
+        context: BMW
+        poll: 11
+        order: 2
+-   model: poll.choice
+    pk: 35
+    fields:
+        context: Benz
+        poll: 11
+        order: 3
+-   model: poll.choice
+    pk: 36
+    fields:
+        context: Ford
+        poll: 12
+        order: 1
+-   model: poll.choice
+    pk: 37
+    fields:
+        context: BMW
+        poll: 12
+        order: 2
+-   model: poll.choice
+    pk: 38
+    fields:
+        context: Benz
+        poll: 12
+        order: 3
+-   model: poll.choice
+    pk: 39
+    fields:
+        context: Tesla
+        poll: 12
+        order: 4
 -   model: poll.vote
     pk: 1
     fields:
@@ -427,9 +477,7 @@
     pk: 14
     fields:
         user: 4
-        selected:
-        - 1
-        - 2
+        selected: []
 -   model: poll.vote
     pk: 22
     fields:
