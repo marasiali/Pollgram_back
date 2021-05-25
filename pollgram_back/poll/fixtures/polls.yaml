@@ -25,7 +25,7 @@
         attached_http_link: ''
         is_vote_retractable: false
         is_public: true
-        visibility_status: VA
+        visibility_status: VI
 -   model: poll.poll
     pk: 3
     fields:
