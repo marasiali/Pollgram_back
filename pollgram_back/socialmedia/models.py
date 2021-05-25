@@ -30,11 +30,11 @@ class User(AbstractUser):
 
     def get_followers(self):
         # sort results have added to have a stable response
-        return self.followers.filter(follows_relationships__pending=False).order_by('-id')
+        return self.followers.filter(follows_relationships__pending=False)
 
     def get_followings(self):
         # sort results have added to have a stable response
-        return self.followings.filter(followed_relationships__pending=False).order_by('-id')
+        return self.followings.filter(followed_relationships__pending=False)
 
     def get_follow_status(self, to_user):
         if self == to_user:
@@ -48,7 +48,7 @@ class User(AbstractUser):
         except FollowRelationship.DoesNotExist:
             return 'NotFollowed'
 
-    def can_see_poll(self, poll):
+    def can_see_result(self, poll):
         visibility_status = poll.visibility_status
         return visibility_status == 'VI' or (
                 visibility_status == 'VA' and
@@ -59,6 +59,7 @@ class User(AbstractUser):
 
     class Meta:
         verbose_name = "User"
+        ordering = ('-id', )
 
     def __str__(self):
         return self.username
