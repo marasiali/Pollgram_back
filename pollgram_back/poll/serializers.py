@@ -29,7 +29,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(ChoiceSerializer, self).to_representation(instance)
-        if self.context['request'].user.can_see_poll(instance.poll):
+        if self.context['request'].user.can_see_results(instance.poll):
             data['vote_count'] = instance.get_votes().count()
         return data
 
@@ -92,7 +92,7 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PollRetrieveSerializer, self).to_representation(instance)
-        if self.context['request'].user.can_see_poll(instance):
+        if self.context['request'].user.can_see_results(instance):
             data['all_votes'] = self.get_all_votes(instance)
             data['voted_choices'] = self.get_user_voted_choices(instance)
         return data

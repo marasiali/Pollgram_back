@@ -48,7 +48,7 @@ class User(AbstractUser):
         except FollowRelationship.DoesNotExist:
             return 'NotFollowed'
 
-    def can_see_result(self, poll):
+    def can_see_results(self, poll):
         visibility_status = poll.visibility_status
         return visibility_status == 'VI' or (
                 visibility_status == 'VA' and
