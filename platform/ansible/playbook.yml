@@ -1,0 +1,105 @@
+- hosts: pollgramserver
+  tasks:
+  - name: create deploy directories if they don't exist
+    become: true
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ server_user }}"
+      group: "{{ server_user }}"  
+      mode: 0755
+    loop:
+      - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/postgres/"
+      - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/static/"
+      - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/media/"
+  - name: cofig ssh for github deploy key
+    template:
+      src: sshconfig
+      dest: "/home/{{ server_user }}/.ssh/config"
+  - name: copy project to server
+    git:
+        repo: git@github.com:marasiali/Pollgram_back.git
+        dest: "/tmp/backend/{{ stack_name }}/"
+        version: "{{ git_branch_name }}"
+        key_file: "/home/{{ server_user }}/.ssh/id_rsa"
+- hosts: pollgramserver
+  become: true
+  tasks:
+  - name: Add deadsnakes repo
+    apt_repository: repo="ppa:deadsnakes/ppa"
+  - name: Install python
+    apt: name="python3.9-dev" state=present
+  - name: Install python3-pip
+    become: true
+    apt:
+      name: python3-pip
+      state: present
+
+- hosts: pollgramserver
+  become: true
+  vars:
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+    docker_install_compose: true
+    docker_compose_version: "1.29.1"
+    docker_users:
+    - "{{ server_user }}"
+  roles:
+    - geerlingguy.docker
+  tasks:
+  - name: Change docker registry to dockerhub.ir
+    copy:
+      src: daemon.json
+      dest: /etc/docker/daemon.json
+    notify:
+    - restart docker
+  - name: install docker-compose python package
+    pip:
+      name: docker-compose==1.29.1
+      executable: pip3
+
+- hosts: pollgramserver
+  no_log: "{{ ansible_deploy_stack_no_log }}"
+  environment:
+    DJANGO_SECRET_KEY: "{{ django_secret_key }}"
+    DJANGO_HOST: "{{ django_host }}"
+    DJANGO_DEBUG: "{{ django_debug }}"
+    DJANGO_SUPERUSER_USERNAME: "{{ django_superuser_username }}"
+    DJANGO_SUPERUSER_PASSWORD: "{{ django_superuser_password }}"
+    DJANGO_SUPERUSER_EMAIL: "{{ django_superuser_email }}"
+    DJANGO_RUN_TEST: "{{ django_run_test }}"
+    SITE_DOMAIN_NAME: "{{ site_domain_name }}"
+    SITE_DISPLAY_NAME: "{{ site_display_name }}"
+    POSTGRES_DB: "{{ postgres_db }}"
+    POSTGRES_USER: "{{ postgres_user }}"
+    POSTGRES_PASSWORD: "{{ postgres_password }}"
+    POSTGRES_HOST: "{{ postgres_host }}"
+    POSTGRES_PORT: "{{ postgres_port }}"
+    EMAIL_HOST: "{{ email_host }}"
+    EMAIL_HOST_USER: "{{ email_host_user }}"
+    EMAIL_HOST_PASSWORD: "{{ email_host_password }}"
+    EMAIL_PORT: "{{ email_port }}"
+    EMAIL_USE_TLS: "{{ email_use_tls }}"
+    DEFAULT_FROM_EMAIL: "{{ default_from_email }}"
+    ENABLE_BROWSABLE_API: "{{ enable_browsable_api }}"
+    STACK_NAME: "{{ stack_name }}"
+    POSTGRES_EXPOSE_ON_PORT: "{{ postgres_expose_on_port }}"
+    DEPLOY_PORT: "{{ deploy_port }}"
+    DEPLOY_DATA_DIR: "{{ deploy_data_dir }}"
+  tasks:
+  - name: Ensure docker is started
+    service:
+      name: docker
+      state: started
+  - name: halt running containers
+    docker_compose:
+      project_src: "/tmp/backend/{{ stack_name }}/pollgram_back/conf/"
+      project_name: "{{ stack_name }}"
+      state: absent
+  - name: deploy Docker Compose stack
+    docker_compose:
+      project_src: "/tmp/backend/{{ stack_name }}/pollgram_back/conf/"
+      project_name: "{{ stack_name }}"
+      state: present
+      build: true

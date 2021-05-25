@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 
 IS_DOCKERIZED = os.environ.get("CONTAINERIZED", "0") == "1"
@@ -94,7 +95,7 @@ WSGI_APPLICATION = 'pollgram_back.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if IS_DOCKERIZED:
+if IS_DOCKERIZED and 'test' not in sys.argv:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -169,6 +170,13 @@ REST_FRAMEWORK = {
 ENABLE_BROWSABLE_API = os.environ.get("ENABLE_BROWSABLE_API", "1") == "1"
 if not ENABLE_BROWSABLE_API:
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
+
+DEFAULT_SUPERUSER = {
+    "USERNAME": os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin"),
+    "PASSWORD": os.environ.get("DJANGO_SUPERUSER_PASSWORD", "123"),
+    "EMAIL": os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@local.dev"),
+}
+
 
 SITE_DOMAIN_NAME = os.environ.get("SITE_DOMAIN_NAME", "localhost.dev")
 SITE_DISPLAY_NAME = os.environ.get("SITE_DISPLAY_NAME", "localhost")
