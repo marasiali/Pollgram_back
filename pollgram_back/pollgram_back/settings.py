@@ -172,9 +172,9 @@ if not ENABLE_BROWSABLE_API:
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
 
 DEFAULT_SUPERUSER = {
-    "USERNAME": os.environ.get("django_superuser_username", "admin"),
-    "PASSWORD": os.environ.get("django_superuser_password", "123"),
-    "EMAIL": os.environ.get("django_superuser_email", "admin@local.dev"),
+    "USERNAME": os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin"),
+    "PASSWORD": os.environ.get("DJANGO_SUPERUSER_PASSWORD", "123"),
+    "EMAIL": os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@local.dev"),
 }
 
 
