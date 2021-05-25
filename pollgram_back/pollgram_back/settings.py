@@ -170,6 +170,13 @@ ENABLE_BROWSABLE_API = os.environ.get("ENABLE_BROWSABLE_API", "1") == "1"
 if not ENABLE_BROWSABLE_API:
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
 
+DEFAULT_SUPERUSER = {
+    "USERNAME": os.environ.get("django_superuser_username", "admin"),
+    "PASSWORD": os.environ.get("django_superuser_password", "123"),
+    "EMAIL": os.environ.get("django_superuser_email", "admin@local.dev"),
+}
+
+
 SITE_DOMAIN_NAME = os.environ.get("SITE_DOMAIN_NAME", "localhost.dev")
 SITE_DISPLAY_NAME = os.environ.get("SITE_DISPLAY_NAME", "localhost")
 SITE_ID = 1
