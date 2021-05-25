@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 
 IS_DOCKERIZED = os.environ.get("CONTAINERIZED", "0") == "1"
@@ -94,7 +95,7 @@ WSGI_APPLICATION = 'pollgram_back.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if IS_DOCKERIZED:
+if IS_DOCKERIZED and 'test' not in sys.argv:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

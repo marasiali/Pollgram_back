@@ -17,5 +17,8 @@ python manage.py initsite
 
 python manage.py collectstatic --noinput
 
+if [ "$DJANGO_RUN_TEST" -eq "1" ]; then
+   python manage.py test
+f
 
 exec "$@"

@@ -1,0 +1,4 @@
+inventory*.yml
+!inventory-raw.yml
+sshkey
+roles/
