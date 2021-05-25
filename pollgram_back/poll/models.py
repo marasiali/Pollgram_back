@@ -24,7 +24,7 @@ class Poll(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='polls')
     created_at = models.DateTimeField(auto_now_add=True)
     question = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     is_commentable = models.BooleanField(default=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name='polls', null=True)
     file = models.ForeignKey(File, on_delete=models.SET_NULL, related_name='polls', null=True)
