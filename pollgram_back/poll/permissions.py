@@ -20,8 +20,6 @@ class IsCreatorOrPublicPoll(BasePermission):
 
     def has_permission(self, request, view):
         poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
-        print(poll)
-        print(poll.is_public and request.user.can_see_results(poll))
         if request.user.is_superuser or poll.creator == request.user:
             return True
         elif poll.is_public and request.user.can_see_results(poll):
