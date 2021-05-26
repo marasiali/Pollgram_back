@@ -1,4 +1,6 @@
+import os
 import uuid
+from datetime import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -6,13 +8,24 @@ from socialmedia.models import User
 
 
 class File(models.Model):
+    def get_upload_file_url(self, file_name):
+        _, ext = os.path.splitext(file_name)
+        now = datetime.now()
+
+        return 'polls/files/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    file = models.FileField(upload_to='polls/files/%Y/%m/%d/' + str(id), blank=True, null=True)
+    file = models.FileField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200)
 
 
 class Image(models.Model):
+    def get_upload_file_url(self, image_name):
+        _, ext = os.path.splitext(image_name)
+        now = datetime.now()
+        return 'polls/images/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    image = models.ImageField(upload_to='polls/images/%Y/%m/%d/' + str(id), blank=True, null=True)
+    image = models.ImageField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200)
 
 
 class Poll(models.Model):
