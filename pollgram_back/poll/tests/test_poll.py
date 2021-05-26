@@ -140,7 +140,7 @@ class PollTest(APITestCase):
         self.assertFalse(data['is_vote_retractable'])
         self.assertIsNone(data['all_votes'])
 
-    def test_get_visible_after_vote_poll_when_not_voted_by_other_user(self):
+    def test_get_visible_after_vote_poll_by_other_user_when_not_voted(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/11/', HTTP_AUTHORIZATION=token)
@@ -168,7 +168,7 @@ class PollTest(APITestCase):
         self.assertTrue(data['is_vote_retractable'])
         self.assertIsNone(data['all_votes'])
 
-    def test_get_visible_after_vote_poll_when_voted_by_other_user(self):
+    def test_get_visible_after_vote_poll_by_other_user_when_voted(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         self.client.post('/api/poll/11/vote/', {
@@ -199,7 +199,7 @@ class PollTest(APITestCase):
         self.assertTrue(data['is_vote_retractable'])
         self.assertIsNotNone(data['all_votes'])
 
-    def test_get_visible_after_vote_poll_when_not_voted_by_creator_user(self):
+    def test_get_visible_after_vote_poll_by_creator_user_when_not_voted(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/11/', HTTP_AUTHORIZATION=token)
@@ -388,7 +388,7 @@ class PollTest(APITestCase):
         self.assertEqual(1, len(results))
         self.assertEqual(2, results[0]['id'])
 
-    def test_get_poll_voters_list_when_poll_is_anonymous_by_creator_user(self):
+    def test_get_poll_voters_list_by_creator_user_when_poll_is_anonymous(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/choice/2/voters/', HTTP_AUTHORIZATION=token)
@@ -399,13 +399,13 @@ class PollTest(APITestCase):
         self.assertEqual(2, results[0]['id'])
         self.assertEqual(1, results[1]['id'])
 
-    def test_get_poll_voters_list_when_poll_is_anonymous_by_other_user(self):
+    def test_get_poll_voters_list_by_other_user_when_poll_is_anonymous(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/choice/2/voters/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
-    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_and_not_voted_by_creator_user(self):
+    def test_get_poll_voters_list_by_creator_user_when_poll_is_public_and_visible_after_vote_and_not_voted(self):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/6/choice/2/voters/', HTTP_AUTHORIZATION=token)
@@ -416,13 +416,13 @@ class PollTest(APITestCase):
         self.assertEqual(2, results[0]['id'])
         self.assertEqual(1, results[1]['id'])
 
-    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_not_voted_by_other_user(self):
+    def test_get_poll_voters_list_by_other_user_when_poll_is_public_and_visible_after_vote_when_not_voted(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/6/choice/2/voters/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
-    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_voted_by_other_user(self):
+    def test_get_poll_voters_list_by_other_user_when_poll_is_public_and_visible_after_vote_when_voted(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         vote = [2]
