@@ -80,7 +80,7 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
     all_votes = serializers.IntegerField(default=None)
     image = ImageSerializer()
     file = FileSerializer()
-    voted_choices = serializers.ListField(default=None)
+    voted_choices = serializers.ListField(default=[])
 
     class Meta:
         model = Poll
