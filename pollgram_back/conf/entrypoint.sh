@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "Waiting for postgres..."
 
@@ -10,16 +11,14 @@ echo "PostgreSQL started"
 
 python manage.py migrate --noinput
 
-python manage.py createsuperuser \
-    --noinput \
-    --skip-checks \
-    --username $DJANGO_SUPERUSER_USERNAME \
-    --email $DJANGO_SUPERUSER_EMAIL
-    # password for this user must be in $DJANGO_SUPERUSER_PASSWORD
+python manage.py initsuperuser
 
 python manage.py initsite
 
 python manage.py collectstatic --noinput
 
+if [ "$DJANGO_RUN_TEST" -eq "1" ]; then
+   python manage.py test
+fi
 
 exec "$@"
