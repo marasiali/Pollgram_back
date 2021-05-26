@@ -1,4 +1,7 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+from poll.models import Poll
 
 
 class IsCreatorOrReadOnly(BasePermission):
@@ -8,6 +11,18 @@ class IsCreatorOrReadOnly(BasePermission):
         elif request.method in SAFE_METHODS:
             return True
         elif request.user == obj.creator:
+            return True
+        else:
+            return False
+
+
+class IsCreatorOrPublicPoll(BasePermission):
+
+    def has_permission(self, request, view):
+        poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
+        if request.user.is_superuser or poll.creator == request.user:
+            return True
+        elif poll.is_public and request.user.can_see_results(poll):
             return True
         else:
             return False

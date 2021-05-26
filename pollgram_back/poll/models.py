@@ -1,18 +1,44 @@
+import os
 import uuid
+from datetime import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from rest_framework.exceptions import ValidationError
+
 from socialmedia.models import User
 
 
 class File(models.Model):
+    def get_upload_file_url(self, file_name):
+        _, ext = os.path.splitext(file_name)
+        now = datetime.now()
+        return 'polls/files/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
+
+    def validate_file_size(value):
+        limit = 30 * 1024 * 1024
+        if value.size > limit:
+            raise ValidationError('Maximum size limit exceeded.')
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    file = models.FileField(upload_to='polls/files/%Y/%m/%d/' + str(id), blank=True, null=True)
+    file = models.FileField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200,
+                            validators=[validate_file_size])
 
 
 class Image(models.Model):
+    def get_upload_file_url(self, image_name):
+        _, ext = os.path.splitext(image_name)
+        now = datetime.now()
+        return 'polls/images/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
+
+    def validate_image_size(value):
+        limit = 10 * 1024 * 1024
+        if value.size > limit:
+            raise ValidationError('Maximum size limit exceeded.')
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    image = models.ImageField(upload_to='polls/images/%Y/%m/%d/' + str(id), blank=True, null=True)
+    image = models.ImageField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200,
+                              validators=[validate_image_size])
 
 
 class Poll(models.Model):
@@ -24,7 +50,7 @@ class Poll(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='polls')
     created_at = models.DateTimeField(auto_now_add=True)
     question = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     is_commentable = models.BooleanField(default=True)
     image = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name='polls', null=True)
     file = models.ForeignKey(File, on_delete=models.SET_NULL, related_name='polls', null=True)

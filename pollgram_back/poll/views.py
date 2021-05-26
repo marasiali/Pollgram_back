@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice
 from .paginations import VotersPagination
-from .permissions import IsCreatorOrReadOnly
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer
 
@@ -68,28 +68,17 @@ class VoteAPIView(APIView):
             }, status=status.HTTP_403_FORBIDDEN)
 
 
-class VotersListAPIView(APIView, VotersPagination):
-    permission_classes = [IsAuthenticated]
+class VotersListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated, IsCreatorOrPublicPoll]
+    pagination_class = VotersPagination
+    serializer_class = VoterUserSerializer
 
-    def get(self, request, poll_pk, order):
-        poll = get_object_or_404(Poll, pk=poll_pk)
-        choice = get_object_or_404(Choice, poll=poll, order=order)
-
-        if poll.is_public:
-            if poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE or (
-                    poll.visibility_status == Poll.PollVisibilityStatus.VISIBLE_AFTER_VOTE and
-                    poll.choices.filter(votes__user=request.user).exists()):
-                user_ids = choice.votes.all().values_list('user', flat=True)
-                users = User.objects.filter(id__in=user_ids)
-                return Response(VoterUserSerializer(users, many=True).data, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    "status": "result is hidden"
-                })
-        else:
-            return Response({
-                "status": "poll is not public"
-            }, status=status.HTTP_403_FORBIDDEN)
+    def get_queryset(self):
+        poll_id = self.kwargs['poll_pk']
+        order = self.kwargs['order']
+        choice = get_object_or_404(Choice, poll=poll_id, order=order)
+        user_ids = choice.votes.all().values_list('user', flat=True)
+        return User.objects.filter(id__in=user_ids)
 
 
 class ImageCreateAPIView(CreateAPIView):
