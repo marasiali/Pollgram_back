@@ -9,6 +9,14 @@ from socialmedia.models import User
 class PollTest(APITestCase):
     fixtures = ['polls', 'users']
 
+    def vote_api(self, poll_id, token, votes):
+        return self.client.post('/api/poll/' + str(poll_id) + '/vote/', {
+            "selected": votes
+        }, format='json', HTTP_AUTHORIZATION=token)
+
+    def retract_vote_api(self, poll_id, token):
+        return self.client.delete('/api/poll/' + str(poll_id) + '/vote/', HTTP_AUTHORIZATION=token)
+
     def test_create_poll(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
@@ -104,7 +112,7 @@ class PollTest(APITestCase):
         self.assertFalse(data['is_vote_retractable'])
         self.assertIsNotNone(data['all_votes'])
 
-    def test_get_hidden_poll_by_other_users(self):
+    def test_get_hidden_poll_by_other_user(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/', HTTP_AUTHORIZATION=token)
@@ -132,7 +140,7 @@ class PollTest(APITestCase):
         self.assertFalse(data['is_vote_retractable'])
         self.assertIsNone(data['all_votes'])
 
-    def test_get_visible_after_vote_poll_when_not_voted_by_other_users(self):
+    def test_get_visible_after_vote_poll_when_not_voted_by_other_user(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/11/', HTTP_AUTHORIZATION=token)
@@ -160,7 +168,7 @@ class PollTest(APITestCase):
         self.assertTrue(data['is_vote_retractable'])
         self.assertIsNone(data['all_votes'])
 
-    def test_get_visible_after_vote_poll_when_voted_by_other_users(self):
+    def test_get_visible_after_vote_poll_when_voted_by_other_user(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         self.client.post('/api/poll/11/vote/', {
@@ -219,7 +227,7 @@ class PollTest(APITestCase):
         self.assertTrue(data['is_vote_retractable'])
         self.assertIsNotNone(data['all_votes'])
 
-    def test_delete_poll_by_other_users(self):
+    def test_delete_poll_by_other_user(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.delete('/api/poll/3/', HTTP_AUTHORIZATION=token)
@@ -236,20 +244,20 @@ class PollTest(APITestCase):
     def test_vote_when_poll_not_exists(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        response = self.vote(poll_id=100, token=token, votes=[1])
+        response = self.vote_api(poll_id=100, token=token, votes=[1])
         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
 
     def test_vote_when_user_voted(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        response = self.vote(poll_id=9, token=token, votes=[1])
+        response = self.vote_api(poll_id=9, token=token, votes=[1])
         self.assertEqual([1], list(response.data['selected']))
-        response_when_vote_again_same_choice = self.vote(poll_id=9, token=token, votes=[1])
+        response_when_vote_again_same_choice = self.vote_api(poll_id=9, token=token, votes=[1])
         data = response_when_vote_again_same_choice.data
         self.assertEqual(status.HTTP_409_CONFLICT, response_when_vote_again_same_choice.status_code)
         self.assertEqual('already voted', data['status'])
 
-        response_when_vote_again_another_choice = self.vote(poll_id=9, token=token, votes=[2])
+        response_when_vote_again_another_choice = self.vote_api(poll_id=9, token=token, votes=[2])
         data = response_when_vote_again_another_choice.data
         self.assertEqual(status.HTTP_409_CONFLICT, response_when_vote_again_another_choice.status_code)
         self.assertEqual('already voted', data['status'])
@@ -259,7 +267,7 @@ class PollTest(APITestCase):
         token = f'Bearer {str(AccessToken.for_user(user))}'
         # in poll with id 9 all choices vote_count are 0 in database
         vote = [2]
-        response = self.vote(poll_id=9, token=token, votes=vote)
+        response = self.vote_api(poll_id=9, token=token, votes=vote)
         data = response.data
         self.assertEqual(vote, list(data['selected']))
         get_poll_response = self.client.get('/api/poll/9/', HTTP_AUTHORIZATION=token)
@@ -274,7 +282,7 @@ class PollTest(APITestCase):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         votes = [2, 3]
-        response = self.vote(poll_id=9, token=token, votes=votes)
+        response = self.vote_api(poll_id=9, token=token, votes=votes)
         data = response.data
         self.assertEqual(status.HTTP_422_UNPROCESSABLE_ENTITY, response.status_code)
         self.assertEqual('invalid number of votes', data['status'])
@@ -282,14 +290,14 @@ class PollTest(APITestCase):
     def test_retract_vote_when_poll_not_exists(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        response = self.retract_vote(poll_id=100, token=token)
+        response = self.retract_vote_api(poll_id=100, token=token)
         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
 
     def test_retract_vote_when_user_not_voted_yet(self):
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         # in poll with id 9 all choices vote_count are 0 in database and no one vote to it
-        response = self.retract_vote(poll_id=9, token=token)
+        response = self.retract_vote_api(poll_id=9, token=token)
         data = response.data
         self.assertEqual(status.HTTP_409_CONFLICT, response.status_code)
         self.assertEqual('not voted yet', data['status'])
@@ -300,10 +308,10 @@ class PollTest(APITestCase):
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         votes = [1, 2, 3]
-        vote_response = self.vote(poll_id=12, token=token, votes=votes)
+        vote_response = self.vote_api(poll_id=12, token=token, votes=votes)
         self.assertEqual(status.HTTP_201_CREATED, vote_response.status_code)
 
-        retract_votes_response = self.retract_vote(poll_id=12, token=token)
+        retract_votes_response = self.retract_vote_api(poll_id=12, token=token)
         self.assertEqual(status.HTTP_204_NO_CONTENT, retract_votes_response.status_code)
         get_poll_response = self.client.get('/api/poll/12/', HTTP_AUTHORIZATION=token)
         poll_data = get_poll_response.data
@@ -311,17 +319,17 @@ class PollTest(APITestCase):
         self.assertIsNone(poll_data['choices'][1]['vote_count'])
         self.assertIsNone(poll_data['choices'][2]['vote_count'])
         self.assertIsNone(poll_data['choices'][3]['vote_count'])
-        self.assertIsNone(poll_data['voted_choices'])
+        self.assertEqual([], poll_data['voted_choices'])
 
-    def test_retract_vote_when_poll_is_not_vot_retractable(self):
+    def test_retract_vote_when_poll_is_not_vote_retractable(self):
         # poll with id 8 is not vote retractable
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         vote = [1]
-        vote_response = self.vote(poll_id=8, token=token, votes=vote)
+        vote_response = self.vote_api(poll_id=8, token=token, votes=vote)
         self.assertEqual(status.HTTP_201_CREATED, vote_response.status_code)
 
-        retract_vote_response = self.retract_vote(poll_id=8, token=token)
+        retract_vote_response = self.retract_vote_api(poll_id=8, token=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, retract_vote_response.status_code)
         retract_vote_response_data = retract_vote_response.data
         self.assertEqual('this poll is not vote retractable', retract_vote_response_data['status'])
@@ -331,25 +339,25 @@ class PollTest(APITestCase):
         user1 = User.objects.get(id=1)
         user1_token = f'Bearer {str(AccessToken.for_user(user1))}'
         user1_votes = [1, 2, 4]
-        user1_vote_response = self.vote(poll_id=12, token=user1_token, votes=user1_votes)
+        user1_vote_response = self.vote_api(poll_id=12, token=user1_token, votes=user1_votes)
         self.assertEqual(status.HTTP_201_CREATED, user1_vote_response.status_code)
 
         user2 = User.objects.get(id=2)
         user2_token = f'Bearer {str(AccessToken.for_user(user2))}'
         user2_votes = [1, 2]
-        user2_vote_response = self.vote(poll_id=12, token=user2_token, votes=user2_votes)
+        user2_vote_response = self.vote_api(poll_id=12, token=user2_token, votes=user2_votes)
         self.assertEqual(status.HTTP_201_CREATED, user2_vote_response.status_code)
 
         user3 = User.objects.get(id=3)
         user3_token = f'Bearer {str(AccessToken.for_user(user3))}'
         user3_votes = [1, 4]
-        user3_vote_response = self.vote(poll_id=12, token=user3_token, votes=user3_votes)
+        user3_vote_response = self.vote_api(poll_id=12, token=user3_token, votes=user3_votes)
         self.assertEqual(status.HTTP_201_CREATED, user3_vote_response.status_code)
 
         user4 = User.objects.get(id=4)
         user4_token = f'Bearer {str(AccessToken.for_user(user4))}'
         user4_votes = [1, 3]
-        user4_vote_response = self.vote(poll_id=12, token=user4_token, votes=user4_votes)
+        user4_vote_response = self.vote_api(poll_id=12, token=user4_token, votes=user4_votes)
         self.assertEqual(status.HTTP_201_CREATED, user4_vote_response.status_code)
 
         get_poll_response = self.client.get('/api/poll/12/', HTTP_AUTHORIZATION=user1_token)
@@ -391,7 +399,7 @@ class PollTest(APITestCase):
         self.assertEqual(2, results[0]['id'])
         self.assertEqual(1, results[1]['id'])
 
-    def test_get_poll_voters_list_when_poll_is_anonymous_by_other_users(self):
+    def test_get_poll_voters_list_when_poll_is_anonymous_by_other_user(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/choice/2/voters/', HTTP_AUTHORIZATION=token)
@@ -408,17 +416,17 @@ class PollTest(APITestCase):
         self.assertEqual(2, results[0]['id'])
         self.assertEqual(1, results[1]['id'])
 
-    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_not_voted_by_other_users(self):
+    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_not_voted_by_other_user(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/6/choice/2/voters/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
-    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_voted_by_other_users(self):
+    def test_get_poll_voters_list_when_poll_is_public_and_visible_after_vote_when_voted_by_other_user(self):
         user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         vote = [2]
-        vote_response = self.vote(poll_id=6, token=token, votes=vote)
+        vote_response = self.vote_api(poll_id=6, token=token, votes=vote)
         self.assertEqual(status.HTTP_201_CREATED, vote_response.status_code)
         get_voters_response = self.client.get('/api/poll/6/choice/2/voters/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_200_OK, get_voters_response.status_code)
@@ -429,11 +437,3 @@ class PollTest(APITestCase):
         self.assertEqual(3, get_voters_response_results[0]['id'])
         self.assertEqual(2, get_voters_response_results[1]['id'])
         self.assertEqual(1, get_voters_response_results[2]['id'])
-
-    def vote(self, poll_id, token, votes):
-        return self.client.post('/api/poll/' + str(poll_id) + '/vote/', {
-            "selected": votes
-        }, format='json', HTTP_AUTHORIZATION=token)
-
-    def retract_vote(self, poll_id, token):
-        return self.client.delete('/api/poll/' + str(poll_id) + '/vote/', HTTP_AUTHORIZATION=token)
