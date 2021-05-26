@@ -76,8 +76,7 @@ class VotersListAPIView(ListAPIView):
     def get_queryset(self):
         poll_id = self.kwargs['poll_pk']
         order = self.kwargs['order']
-        poll = get_object_or_404(Poll, id=poll_id)
-        choice = get_object_or_404(Choice, poll=poll, order=order)
+        choice = get_object_or_404(Choice, poll=poll_id, order=order)
         user_ids = choice.votes.all().values_list('user', flat=True)
         return User.objects.filter(id__in=user_ids)
 
