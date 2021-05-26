@@ -4,6 +4,8 @@ from datetime import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from rest_framework.exceptions import ValidationError
+
 from socialmedia.models import User
 
 
@@ -11,11 +13,16 @@ class File(models.Model):
     def get_upload_file_url(self, file_name):
         _, ext = os.path.splitext(file_name)
         now = datetime.now()
-
         return 'polls/files/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
 
+    def validate_file_size(value):
+        limit = 30 * 1024 * 1024
+        if value.size > limit:
+            raise ValidationError('Maximum size limit exceeded.')
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    file = models.FileField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200)
+    file = models.FileField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200,
+                            validators=[validate_file_size])
 
 
 class Image(models.Model):
@@ -24,8 +31,14 @@ class Image(models.Model):
         now = datetime.now()
         return 'polls/images/{}/{}/{}/'.format(now.year, now.month, now.day) + str(self.id) + ext
 
+    def validate_image_size(value):
+        limit = 10 * 1024 * 1024
+        if value.size > limit:
+            raise ValidationError('Maximum size limit exceeded.')
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    image = models.ImageField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200)
+    image = models.ImageField(upload_to=get_upload_file_url, blank=True, null=True, max_length=200,
+                              validators=[validate_image_size])
 
 
 class Poll(models.Model):
