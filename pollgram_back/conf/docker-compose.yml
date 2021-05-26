@@ -55,6 +55,8 @@ services:
     volumes:
       - static_volume:/backend/static/
       - media_volume:/backend/media/
+    environment:
+      - DEPLOY_PORT
     depends_on:
       - backendapp
 volumes:
