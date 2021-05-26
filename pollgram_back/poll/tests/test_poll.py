@@ -303,17 +303,14 @@ class PollTest(APITestCase):
         self.assertEqual('not voted yet', data['status'])
 
     def test_retract_vote_when_poll_is_retractable(self):
-        # no one votes to poll with id 12 before
-        # poll with id 12 is vote retractable
-        user = User.objects.get(id=2)
+        # poll with id 4 is vote retractable
+        # user 1 has voted to 1, 2 no one else have voted to this poll
+        user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        votes = [1, 2, 3]
-        vote_response = self.vote_api(poll_id=12, token=token, votes=votes)
-        self.assertEqual(status.HTTP_201_CREATED, vote_response.status_code)
 
-        retract_votes_response = self.retract_vote_api(poll_id=12, token=token)
+        retract_votes_response = self.retract_vote_api(poll_id=4, token=token)
         self.assertEqual(status.HTTP_204_NO_CONTENT, retract_votes_response.status_code)
-        get_poll_response = self.client.get('/api/poll/12/', HTTP_AUTHORIZATION=token)
+        get_poll_response = self.client.get('/api/poll/4/', HTTP_AUTHORIZATION=token)
         poll_data = get_poll_response.data
         self.assertIsNone(poll_data['choices'][0]['vote_count'])
         self.assertIsNone(poll_data['choices'][1]['vote_count'])
@@ -322,14 +319,11 @@ class PollTest(APITestCase):
         self.assertEqual([], poll_data['voted_choices'])
 
     def test_retract_vote_when_poll_is_not_vote_retractable(self):
-        # poll with id 8 is not vote retractable
+        # poll with id 5 is not vote retractable
         user = User.objects.get(id=1)
         token = f'Bearer {str(AccessToken.for_user(user))}'
-        vote = [1]
-        vote_response = self.vote_api(poll_id=8, token=token, votes=vote)
-        self.assertEqual(status.HTTP_201_CREATED, vote_response.status_code)
 
-        retract_vote_response = self.retract_vote_api(poll_id=8, token=token)
+        retract_vote_response = self.retract_vote_api(poll_id=5, token=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, retract_vote_response.status_code)
         retract_vote_response_data = retract_vote_response.data
         self.assertEqual('this poll is not vote retractable', retract_vote_response_data['status'])
