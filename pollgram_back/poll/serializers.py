@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from poll.models import Poll, Choice, Vote, File, Image
+from poll.models import Poll, Choice, Vote, File, Image, Category
 from socialmedia.models import User
 from socialmedia.serializers.user import UserSummarySerializer
 
@@ -17,6 +17,12 @@ class ImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ('id', 'image')
         read_only_fields = ('id',)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'parent')
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -43,7 +49,7 @@ class PollCreateSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
             'image', 'file', 'min_choice_can_vote', 'max_choice_can_vote', 'is_vote_retractable', 'is_public',
-            'visibility_status')
+            'visibility_status', 'category')
         read_only_fields = ('id',)
 
     def create(self, validated_data):
@@ -81,13 +87,14 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
     image = ImageSerializer()
     file = FileSerializer()
     voted_choices = serializers.ListField(default=[])
+    category = CategorySerializer()
 
     class Meta:
         model = Poll
         fields = (
             'id', 'created_at', 'question', 'description', 'creator', 'choices', 'is_commentable', 'attached_http_link',
             'image', 'file', 'max_choice_can_vote', 'min_choice_can_vote', 'is_vote_retractable', 'all_votes',
-            'is_public', 'visibility_status', 'voted_choices')
+            'is_public', 'visibility_status', 'voted_choices', 'category')
         read_only_fields = ('id',)
 
     def to_representation(self, instance):
