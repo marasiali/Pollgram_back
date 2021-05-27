@@ -47,7 +47,7 @@ class Category(models.Model):
     order = models.IntegerField()
 
     class Meta:
-        verbose_name = 'Categorie'
+        verbose_name_plural = 'Categories'
         ordering = ('order',)
 
     def __str__(self):
