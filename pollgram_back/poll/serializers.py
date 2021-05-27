@@ -19,6 +19,12 @@ class ImageSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
+class PollCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
+
+
 class SubCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -99,6 +105,7 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
     image = ImageSerializer()
     file = FileSerializer()
     voted_choices = serializers.ListField(default=[])
+    category = PollCategorySerializer()
 
     class Meta:
         model = Poll

@@ -59,7 +59,8 @@ class TestCategories(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         data = response.data['results']
         self.assertEqual(1, len(data))
-        self.assertEqual(4, data[0]['category'])
+        self.assertEqual(4, data[0]['category']['id'])
+        self.assertEqual('digital', data[0]['category']['name'])
 
     def test_get_main_category_polls_when_has_sub_category(self):
         user = User.objects.get(id=2)
@@ -70,7 +71,7 @@ class TestCategories(APITestCase):
         self.assertEqual(4, len(data))
         right_category_id_for_these_polls = [1, 2, 3]
         for poll in data:
-            self.assertTrue(poll['category'] in right_category_id_for_these_polls)
+            self.assertTrue(poll['category']['id'] in right_category_id_for_these_polls)
 
     def test_get_sub_category_polls(self):
         # category 3 is category 1 sub category
@@ -81,8 +82,10 @@ class TestCategories(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         data = response.data['results']
         self.assertEqual(2, len(data))
-        self.assertEqual(3, data[0]['category'])
-        self.assertEqual(3, data[1]['category'])
+        self.assertEqual(3, data[0]['category']['id'])
+        self.assertEqual('programming', data[0]['category']['name'])
+        self.assertEqual(3, data[1]['category']['id'])
+        self.assertEqual('programming', data[1]['category']['name'])
 
     def test_get_categories(self):
         user = User.objects.get(id=2)
