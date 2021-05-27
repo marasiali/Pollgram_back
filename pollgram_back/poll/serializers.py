@@ -19,10 +19,22 @@ class ImageSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class SubCategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'order')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    sub_categories = serializers.SerializerMethodField('get_sub_categories')
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'order', 'sub_categories')
+
+    def get_sub_categories(self, obj):
+        return SubCategorySerializer(obj.get_sub_categories(), many=True).data
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -87,7 +99,6 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
     image = ImageSerializer()
     file = FileSerializer()
     voted_choices = serializers.ListField(default=[])
-    category = CategorySerializer()
 
     class Meta:
         model = Poll
@@ -99,6 +110,7 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PollRetrieveSerializer, self).to_representation(instance)
+        self.context['request'].path.split()
         if self.context['request'].user.can_see_results(instance):
             data['all_votes'] = self.get_all_votes(instance)
             data['voted_choices'] = self.get_user_voted_choices(instance)
@@ -117,4 +129,3 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
             user = obj.creator
         voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
-
