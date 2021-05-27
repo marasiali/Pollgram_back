@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category
-from .paginations import VotersPagination
+from .paginations import VotersPagination, PollPagination
 from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer
@@ -94,14 +94,18 @@ class FileCreateAPIView(CreateAPIView):
 
 
 class CategoryListAPIView(ListAPIView):
-    queryset = Category.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        main_categories = Category.objects.filter(parent=None)
+        return main_categories
 
 
 class CategoryPollsListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PollRetrieveSerializer
+    pagination_class = PollPagination
 
     def get_queryset(self):
         category_id = self.kwargs['cat_pk']
@@ -114,4 +118,3 @@ class CategoryPollsListAPIView(ListAPIView):
             return polls | category.polls.all()
         else:
             return Poll.objects.filter(category=category)
-
