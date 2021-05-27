@@ -1,5 +1,6 @@
 import os
 import uuid
+from enum import IntEnum, unique
 from datetime import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -113,3 +114,28 @@ class Vote(models.Model):
 
     def __str__(self):
         return 'Vote = id: {}, userId: {}, choiceId: {}'.format(self.id, self.user.id, self.selected.id)
+
+
+class Comment(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    created_at = models.DateTimeField(auto_now_add=True)
+    content = models.TextField()
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        username = self.creator.username
+        _content = self.content[:20]
+        if not self.parent:
+            return f'comment by {username}: {_content}'
+        else:
+            return f'reply by {username}: {_content}'
+
+    def __repr__(self):
+        return self.__str__()
+
+    likes = models.ManyToManyField(User, related_name='liked_comment')
+    dislikes = models.ManyToManyField(User, related_name='disliked_comment')
