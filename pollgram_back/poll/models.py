@@ -44,9 +44,11 @@ class Image(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=30)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='sub_categories', blank=True, null=True)
+    order = models.IntegerField()
 
     class Meta:
         verbose_name = 'Categorie'
+        ordering = ('order',)
 
     def __str__(self):
         return 'Category = name: {}, id: {}, parent_id: {}'.format(self.name, self.id,
