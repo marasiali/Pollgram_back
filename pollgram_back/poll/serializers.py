@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from poll.models import Poll, Choice, Vote, File, Image, Category
+from poll.models import Poll, Choice, Vote, File, Image, Category, Comment
 from socialmedia.models import User
 from socialmedia.serializers.user import UserSummarySerializer
 
@@ -26,7 +26,6 @@ class PollCategorySerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         fields = ('id', 'name', 'order')
@@ -136,3 +135,35 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
             user = obj.creator
         voted_choice_ids = obj.choices.filter(votes__user=user).values_list('order', flat=True)
         return voted_choice_ids
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    creator = UserSummarySerializer(read_only=True)
+
+    likes_count = serializers.IntegerField(source='likes.count', read_only=True)
+    dislikes_count = serializers.IntegerField(source='dislikes.count', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'created_at', 'content', 'creator', 'parent', 'likes_count', 'dislikes_count')
+        read_only_fields = ('id',)
+
+    def create(self, validated_data):
+        validated_data['creator'] = self.context['request'].user
+
+        validated_data['poll'] = self.context['poll']
+        return super(CommentSerializer, self).create(validated_data)
+
+    def validate(self, data):
+        data = super(CommentSerializer, self).validate(data)
+
+        poll = self.context['poll']
+        parent = data['parent']
+
+        if not poll.is_commentable:
+            raise serializers.ValidationError("The poll is not commentble.")
+        if parent and parent.parent:
+            raise serializers.ValidationError("You can't reply this comment.")
+        if parent and not parent.poll == poll:
+            raise serializers.ValidationError("You can't reply this comment.poll parent not same")
+        return data
