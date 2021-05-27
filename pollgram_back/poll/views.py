@@ -6,11 +6,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from socialmedia.models import User
-from .models import Poll, Vote, Image, File, Choice
+from .models import Poll, Vote, Image, File, Choice, Category
 from .paginations import VotersPagination
 from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
-    VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer
+    VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -91,3 +91,27 @@ class FileCreateAPIView(CreateAPIView):
     model = File
     serializer_class = FileSerializer
     permission_classes = [IsAuthenticated]
+
+
+class CategoryListAPIView(ListAPIView):
+    queryset = Category.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = CategorySerializer
+
+
+class CategoryPollsListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PollRetrieveSerializer
+
+    def get_queryset(self):
+        category_id = self.kwargs['cat_pk']
+        category = get_object_or_404(Category, id=category_id)
+        if category.parent is None:
+            sub_categories = category.get_sub_categories().prefetch_related('polls')
+            polls = Poll.objects.none()
+            for sub_cat in sub_categories:
+                polls = polls | sub_cat.polls.all()
+            return polls | category.polls.all()
+        else:
+            return Poll.objects.filter(category=category)
+
