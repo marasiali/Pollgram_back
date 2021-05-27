@@ -41,6 +41,21 @@ class Image(models.Model):
                               validators=[validate_image_size])
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=30)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='sub_categories', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Categorie'
+
+    def __str__(self):
+        return 'Category = name: {}, id: {}, parent_id: {}'.format(self.name, self.id,
+                                                                   '{}' if self.parent is None else self.parent.id)
+
+    def get_sub_categories(self):
+        return self.sub_categories.all()
+
+
 class Poll(models.Model):
     class PollVisibilityStatus(models.TextChoices):
         VISIBLE = 'VI', 'visible'
@@ -63,6 +78,7 @@ class Poll(models.Model):
     is_public = models.BooleanField(default=True)
     visibility_status = models.CharField(max_length=2, choices=PollVisibilityStatus.choices,
                                          default=PollVisibilityStatus.VISIBLE_AFTER_VOTE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='polls', null=True)
 
     class Meta:
         ordering = ('-created_at',)
