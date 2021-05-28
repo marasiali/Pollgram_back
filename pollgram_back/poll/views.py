@@ -1,14 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status, filters
-from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
-from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, IsShowCommentsFilter
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer
 
@@ -121,45 +120,38 @@ class CategoryPollsListAPIView(ListAPIView):
 
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnly]
+    lookup_url_kwarg = "comment_pk"
+
+    def get_queryset(self):
+        poll = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
+        return poll.comments
 
 
-class CommentAPIView(CreateAPIView):
+class CommentListCreateAPIView(ListCreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    pagination_class = CommentPagination
+    permission_classes = [IsAuthenticated, IsShowCommentsFilter]
+    ordering_fields = ['likes', 'dislikes']
 
     def get_serializer_context(self):
-        context = super(CommentAPIView, self).get_serializer_context()
+        context = super(CommentListCreateAPIView, self).get_serializer_context()
         context['poll'] = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
         return context
 
-
-class CommentListAPIView(ListAPIView):
-    pagination_class = CommentPagination
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-    ordering_fields = ['likes', 'dislikes']
-
     def get_queryset(self):
-        poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
-        return poll.comments.all()
+        filter_order = self.request.query_params.get('order')
 
-
-class CommentFilterListAPIView(ListAPIView):
-    pagination_class = CommentPagination
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-    ordering_fields = ['likes', 'dislikes']
-
-    def get_queryset(self):
-        poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
-        choice = get_object_or_404(Choice, poll=poll, order=self.kwargs['order'])
-        users = choice.votes.all().values_list('user', flat=True)
-
-        return Comment.objects.filter(creator__in=users, poll=poll)
+        if filter_order:
+            poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
+            choice = get_object_or_404(Choice, poll=poll, order=filter_order)
+            users = choice.votes.all().values_list('user', flat=True)
+            return Comment.objects.filter(creator__in=users, poll=poll)
+        else:
+            poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
+            return poll.comments.all()
 
 
 class ReplyListAPIView(ListAPIView):
@@ -178,10 +170,10 @@ class LikeAPIView(APIView):
     def post(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, pk=comment_pk)
-        if comment.dislikes.filter(pk=user.pk).exists():
-            return Response({"msg": "already disliked"}, status=status.HTTP_409_CONFLICT)
         if comment.likes.filter(pk=user.pk).exists():
             return Response({"msg": "already liked"}, status=status.HTTP_409_CONFLICT)
+        if comment.dislikes.filter(pk=user.pk).exists():
+            comment.dislikes.remove(user)
 
         comment.likes.add(user)
 
@@ -204,10 +196,10 @@ class DislikeAPIView(APIView):
     def post(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, pk=comment_pk)
-        if comment.likes.filter(pk=user.pk).exists():
-            return Response({"msg": "already liked"}, status=status.HTTP_409_CONFLICT)
         if comment.dislikes.filter(pk=user.pk).exists():
             return Response({"msg": "already disliked"}, status=status.HTTP_409_CONFLICT)
+        if comment.likes.filter(pk=user.pk).exists():
+            comment.likes.remove(user)
 
         comment.dislikes.add(user)
 
