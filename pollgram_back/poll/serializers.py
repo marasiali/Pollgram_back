@@ -145,25 +145,23 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'created_at', 'content', 'creator', 'parent', 'likes_count', 'dislikes_count')
-        read_only_fields = ('id',)
+        fields = ('id', 'created_at', 'content', 'creator', 'parent', 'likes_count', 'dislikes_count', 'poll')
+        read_only_fields = ('id', 'poll')
 
     def create(self, validated_data):
         validated_data['creator'] = self.context['request'].user
-
         validated_data['poll'] = self.context['poll']
         return super(CommentSerializer, self).create(validated_data)
 
     def validate(self, data):
         data = super(CommentSerializer, self).validate(data)
-
         poll = self.context['poll']
         parent = data['parent']
 
         if not poll.is_commentable:
-            raise serializers.ValidationError("The poll is not commentble.")
+            raise serializers.ValidationError("The poll is not commentable.")
         if parent and parent.parent:
             raise serializers.ValidationError("You can't reply this comment.")
         if parent and not parent.poll == poll:
-            raise serializers.ValidationError("You can't reply this comment.poll parent not same")
+            raise serializers.ValidationError("The comment parent doesn't belong to this poll.")
         return data
