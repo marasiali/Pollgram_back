@@ -1,12 +1,9 @@
 import os
 import uuid
-from enum import IntEnum, unique
 from datetime import datetime
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from rest_framework.exceptions import ValidationError
-
 from socialmedia.models import User
 
 
@@ -130,12 +127,9 @@ class Comment(models.Model):
         username = self.creator.username
         _content = self.content[:20]
         if not self.parent:
-            return f'comment by {username}: {_content}'
+            return f'{self.id}) comment by {username} on poll {self.poll.id}: {_content}'
         else:
-            return f'reply by {username}: {_content}'
-
-    def __repr__(self):
-        return self.__str__()
+            return f'{self.id}) reply by {username} on comment {self.parent.id}: {_content}'
 
     likes = models.ManyToManyField(User, related_name='liked_comment')
     dislikes = models.ManyToManyField(User, related_name='disliked_comment')
