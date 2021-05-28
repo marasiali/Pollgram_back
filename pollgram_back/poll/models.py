@@ -1,11 +1,9 @@
 import os
 import uuid
 from datetime import datetime
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from rest_framework.exceptions import ValidationError
-
 from socialmedia.models import User
 
 
@@ -113,3 +111,25 @@ class Vote(models.Model):
 
     def __str__(self):
         return 'Vote = id: {}, userId: {}, choiceId: {}'.format(self.id, self.user.id, self.selected.id)
+
+
+class Comment(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    created_at = models.DateTimeField(auto_now_add=True)
+    content = models.CharField("content", max_length=2000)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        username = self.creator.username
+        _content = self.content[:20]
+        if not self.parent:
+            return f'{self.id}) comment by {username} on poll {self.poll.id}: {_content}'
+        else:
+            return f'{self.id}) reply by {username} on comment {self.parent.id}: {_content}'
+
+    likes = models.ManyToManyField(User, related_name='liked_comment')
+    dislikes = models.ManyToManyField(User, related_name='disliked_comment')

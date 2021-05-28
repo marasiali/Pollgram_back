@@ -26,3 +26,13 @@ class IsCreatorOrPublicPoll(BasePermission):
             return True
         else:
             return False
+
+
+class CommentFilterPermission(BasePermission):
+
+    def has_permission(self, request, view):
+        filter_order = request.query_params.get('order')
+        if filter_order:
+            poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
+            return request.user.can_see_results(poll) and poll.is_public
+        return True
