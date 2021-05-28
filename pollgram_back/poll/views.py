@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
-from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, IsShowCommentsFilter
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer
 
@@ -133,7 +133,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
     pagination_class = CommentPagination
-    permission_classes = [IsAuthenticated, IsShowCommentsFilter]
+    permission_classes = [IsAuthenticated, CommentFilterPermission]
     ordering_fields = ['likes', 'dislikes']
 
     def get_serializer_context(self):

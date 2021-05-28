@@ -28,7 +28,7 @@ class IsCreatorOrPublicPoll(BasePermission):
             return False
 
 
-class IsShowCommentsFilter(BasePermission):
+class CommentFilterPermission(BasePermission):
 
     def has_permission(self, request, view):
         filter_order = request.query_params.get('order')
