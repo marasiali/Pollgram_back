@@ -116,7 +116,7 @@ class Vote(models.Model):
 class Comment(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     created_at = models.DateTimeField(auto_now_add=True)
-    content = models.TextField()
+    content = models.CharField("content", max_length=2000)
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True)
 
