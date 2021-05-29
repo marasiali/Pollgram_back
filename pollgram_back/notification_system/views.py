@@ -9,8 +9,29 @@ from notifications.models import Notification
 from notifications.utils import slug2id
 from .serializers import NotificationSerializer
 from .paginations import NotificationPagination
+from drf_spectacular.utils import extend_schema
+
 
 class NotificationAllListAPIView(ListAPIView):
+    """
+    Get list of all notifications
+
+    In the response:
+
+        - slug          ->  Notification id
+        - actor         ->  The user who performed the activity.
+        - action        ->  Type of this notification    
+        - action_object ->  The object linked to the action itself.        
+        - target        ->  The object to which the activity was performed.    
+        - unread        ->  Has the notification been read? (NOTE: You must mark notification as read manually.)
+        - timestamp     ->  notification time    
+
+    Based on "action" may be "action_object" or "target" or both of them be null.
+
+    Meaning of "actor", "action_object" and "target" explained in the examples for each
+    type of notification.
+    
+    """
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = NotificationPagination
@@ -19,6 +40,24 @@ class NotificationAllListAPIView(ListAPIView):
 
 
 class NotificationUnreadListAPIView(ListAPIView):
+    """
+    Get list of unread notifications.
+
+    In the response:
+
+        - slug          ->  Notification id
+        - actor         ->  The user who performed the activity.
+        - action        ->  Type of this notification    
+        - action_object ->  The object linked to the action itself.        
+        - target        ->  The object to which the activity was performed.    
+        - unread        ->  Has the notification been read? (NOTE: You must mark notification as read manually.)
+        - timestamp     ->  notification time    
+
+    Based on "action" may be "action_object" or "target" or both of them be null.
+
+    Meaning of "actor", "action_object" and "target" explained in the examples for each
+    type of notification.
+    """
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = NotificationPagination
@@ -27,6 +66,9 @@ class NotificationUnreadListAPIView(ListAPIView):
 
 
 class NotificationAllCountAPIView(APIView):
+    """
+    Get all notifications count.
+    """
     permission_classes = [IsAuthenticated]
     @method_decorator(never_cache)
     def get(self, request):
@@ -36,6 +78,9 @@ class NotificationAllCountAPIView(APIView):
 
 
 class NotificationUnreadCountAPIView(APIView):
+    """
+    Get unread notifications count.
+    """
     permission_classes = [IsAuthenticated]
     @method_decorator(never_cache)
     def get(self, request):
@@ -45,6 +90,9 @@ class NotificationUnreadCountAPIView(APIView):
 
 
 class NotificationMarkAsReadAPIView(APIView):
+    """
+    Mark a notification as read.
+    """
     permission_classes = [IsAuthenticated]
     def post(self, request, slug):
         notification_id = slug2id(slug)
@@ -57,6 +105,9 @@ class NotificationMarkAsReadAPIView(APIView):
 
 
 class NotificationMarkAsUnreadAPIView(APIView):
+    """
+    Mark a notification as unread.
+    """
     permission_classes = [IsAuthenticated]
     def post(self, request, slug):
         notification_id = slug2id(slug)
@@ -69,6 +120,9 @@ class NotificationMarkAsUnreadAPIView(APIView):
 
 
 class NotificationMarkAllAsReadAPIView(APIView):
+    """
+    Mark all notifications as read.
+    """
     permission_classes = [IsAuthenticated]
     def post(self, request):
         request.user.notifications.mark_all_as_read()
