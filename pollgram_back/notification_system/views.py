@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -25,6 +27,7 @@ class NotificationUnreadListAPIView(ListAPIView):
 
 class NotificationAllCountAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @method_decorator(never_cache)
     def get(self, request):
         return Response({
             "count": self.request.user.notifications.all().count(),
@@ -33,6 +36,7 @@ class NotificationAllCountAPIView(APIView):
 
 class NotificationUnreadCountAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    @method_decorator(never_cache)
     def get(self, request):
         return Response({
             "count": self.request.user.notifications.unread().count(),
