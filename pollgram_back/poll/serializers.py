@@ -116,7 +116,6 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PollRetrieveSerializer, self).to_representation(instance)
-        self.context['request'].path.split()
         if self.context['request'].user.can_see_results(instance):
             data['all_votes'] = self.get_all_votes(instance)
             data['voted_choices'] = self.get_user_voted_choices(instance)

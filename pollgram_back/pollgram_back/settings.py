@@ -51,11 +51,12 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'drf_spectacular',
     'corsheaders',
+    'notifications',
 
     'socialmedia',
     'pollgram_auth',
     'poll',
-    'django_filters',
+    'notification_system.apps.NotificationSystemConfig',
 ]
 
 MIDDLEWARE = [
