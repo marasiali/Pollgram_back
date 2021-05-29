@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'drf_spectacular',
     'corsheaders',
+    'django_filters',
     'notifications',
 
     'socialmedia',
