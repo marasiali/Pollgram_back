@@ -46,7 +46,7 @@ class NotificationUnreadCountAPIView(APIView):
 
 class NotificationMarkAsReadAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request, slug):
+    def post(self, request, slug):
         notification_id = slug2id(slug)
         notification = get_object_or_404(
             Notification, recipient=request.user, id=notification_id)
@@ -58,7 +58,7 @@ class NotificationMarkAsReadAPIView(APIView):
 
 class NotificationMarkAsUnreadAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request, slug):
+    def post(self, request, slug):
         notification_id = slug2id(slug)
         notification = get_object_or_404(
             Notification, recipient=request.user, id=notification_id)
@@ -70,7 +70,7 @@ class NotificationMarkAsUnreadAPIView(APIView):
 
 class NotificationMarkAllAsReadAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self, request):
+    def post(self, request):
         request.user.notifications.mark_all_as_read()
         return Response({
             "msg": "ok",
