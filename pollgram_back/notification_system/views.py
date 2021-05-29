@@ -7,13 +7,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from notifications.models import Notification
 from notifications.utils import slug2id
-
 from .serializers import NotificationSerializer
-
+from .paginations import NotificationPagination
 
 class NotificationAllListAPIView(ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = NotificationPagination
     def get_queryset(self):
         return self.request.user.notifications.all()
 
@@ -21,6 +21,7 @@ class NotificationAllListAPIView(ListAPIView):
 class NotificationUnreadListAPIView(ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = NotificationPagination
     def get_queryset(self):
         return self.request.user.notifications.unread()
 
