@@ -9,6 +9,4 @@ def accept_all_follow_requests(sender, instance, created, **kwargs):
     if not created and instance.is_public:
         follow_relationships = FollowRelationship.objects.filter(to_user=instance)
         if follow_relationships.exists():
-            for relation in follow_relationships:
-                relation.pending = False
-                relation.save()
+            follow_relationships.update(pending=False)
