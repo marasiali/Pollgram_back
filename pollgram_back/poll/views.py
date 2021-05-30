@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
-from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollower
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollowerOrPublic
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer
 
@@ -26,7 +26,7 @@ class PollCreateAPIView(CreateAPIView):
 
 
 class VoteAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsFollower]
+    permission_classes = [IsAuthenticated, IsFollowerOrPublic]
 
     def post(self, request, poll_pk):
         user = request.user
@@ -69,7 +69,7 @@ class VoteAPIView(APIView):
 
 
 class VotersListAPIView(ListAPIView):
-    permission_classes = [IsAuthenticated, IsCreatorOrPublicPoll, IsFollower]
+    permission_classes = [IsAuthenticated, IsCreatorOrPublicPoll, IsFollowerOrPublic]
     pagination_class = VotersPagination
     serializer_class = VoterUserSerializer
 

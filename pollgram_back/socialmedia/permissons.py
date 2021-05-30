@@ -16,10 +16,10 @@ class IsSelfOrReadOnly(BasePermission):
             return False
 
 
-class IsFollower(BasePermission):
+class IsFollowerOrPublic(BasePermission):
     def has_permission(self, request, view):
         user = get_object_or_404(User, pk=view.kwargs['pk'])
-        if user.get_followers().filter(pk=request.user.id).exists() or request.user == user:
+        if user.get_followers().filter(pk=request.user.id).exists() or request.user == user or user.is_public:
             return True
         else:
             return False
