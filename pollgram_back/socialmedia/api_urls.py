@@ -1,16 +1,19 @@
 from django.urls import path
-from .views import user, follow_relationship
+from .views.follow_relationship import FollowAPIView, FollowingsAPIView, FollowersAPIView, \
+    FollowRequestStatusAPIView
+from .views.user import UserAPIView, UserAvatarAPIView, UserCoverAPIView, UserTimelineListAPIView, PollListAPIView, \
+    UserListAPIView
 
 urlpatterns = [
-    path('user/<int:pk>/', user.UserAPIView.as_view(), name='user_api'),
-    path('user/<int:pk>/follow/', follow_relationship.FollowAPIView.as_view(), name='follow-api'),
-    path('user/<int:pk>/followings/', follow_relationship.FollowingsAPIView.as_view(), name='followings-api'),
-    path('user/<int:pk>/followers/', follow_relationship.FollowersAPIView.as_view(), name='followers-api'),
-    path('user/avatar/<int:pk>/', user.UserAvatarAPIView.as_view(), name='avatar_api'),
-    path('user/cover/<int:pk>/', user.UserCoverAPIView.as_view(), name='cover_api'),
-    path('user/timeline/', user.UserTimelineListAPIView.as_view(), name='timeline_api'),
-    path('user/<int:pk>/polls/', user.PollListAPIView.as_view(), name='user_polls_api'),
-    path('user/', user.UserListAPIView.as_view(), name='user_list_api'),
-    path('user/<int:user_pk>/request-status/', follow_relationship.SpecifyFollowRequestStatusAPIView.as_view(),
-         name='specify_follow_request_status')
+    path('user/<int:pk>/', UserAPIView.as_view(), name='user_api'),
+    path('user/<int:pk>/follow/', FollowAPIView.as_view(), name='follow-api'),
+    path('user/<int:pk>/followings/', FollowingsAPIView.as_view(), name='followings-api'),
+    path('user/<int:pk>/followers/', FollowersAPIView.as_view(), name='followers-api'),
+    path('user/avatar/<int:pk>/', UserAvatarAPIView.as_view(), name='avatar_api'),
+    path('user/cover/<int:pk>/', UserCoverAPIView.as_view(), name='cover_api'),
+    path('user/timeline/', UserTimelineListAPIView.as_view(), name='timeline_api'),
+    path('user/<int:pk>/polls/', PollListAPIView.as_view(), name='user_polls_api'),
+    path('user/', UserListAPIView.as_view(), name='user_list_api'),
+    path('user/<int:user_pk>/follow-request-status/', FollowRequestStatusAPIView.as_view(),
+         name='follow_request_status')
 ]
