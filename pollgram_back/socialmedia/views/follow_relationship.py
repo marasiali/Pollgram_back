@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from ..models import FollowRelationship
+from ..models import FollowRelationship, User
 from ..pagination import DefaultPagination
 from ..permissons import IsSelfOrReadOnly
 from ..serializers.user import UserSummarySerializer
@@ -75,3 +75,25 @@ class FollowersAPIView(ListAPIView):
     def get_queryset(self):
         user = get_object_or_404(get_user_model(), pk=self.kwargs['pk'])
         return user.get_followers()
+
+
+class SpecifyFollowRequestStatusAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_pk):
+
+        follower_user = get_object_or_404(User, id=user_pk)
+        follow_relationship = get_object_or_404(FollowRelationship, from_user=follower_user, to_user=request.user)
+        follow_relationship.pending = False
+        follow_relationship.save()
+        return Response({
+            "status": "accepted"
+        }, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, user_pk):
+        follower_user = get_object_or_404(User, id=user_pk)
+        follow_relationship = get_object_or_404(FollowRelationship, from_user=follower_user, to_user=request.user)
+        follow_relationship.delete()
+        return Response({
+            "status": "rejected"
+        }, status=status.HTTP_204_NO_CONTENT)
