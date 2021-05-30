@@ -1,5 +1,8 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from django.contrib.auth import get_user_model
+
+from socialmedia.models import User
+
 
 class IsSelfOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -8,6 +11,17 @@ class IsSelfOrReadOnly(BasePermission):
         elif request.method in SAFE_METHODS and not obj.is_superuser:
             return True
         elif request.user == obj:
+            return True
+        else:
+            return False
+
+
+class IsFollower(BasePermission):
+    def has_permission(self, request, view):
+        print(view.kwargs['pk'])
+        user = get_object_or_404(User, pk=view.kwargs['pk'])
+        print(user)
+        if user.get_followers().filter(pk=request.user.id).exists() or request.user == user:
             return True
         else:
             return False
