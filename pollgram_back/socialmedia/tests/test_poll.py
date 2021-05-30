@@ -9,7 +9,7 @@ class UserPollTest(APITestCase):
     fixtures = ['poll_users_fixture', 'poll_fixture']
 
     def test_get_public_page_polls(self):
-        user = User.objects.get(id=1)
+        user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/user/2/polls/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_200_OK, response.status_code)

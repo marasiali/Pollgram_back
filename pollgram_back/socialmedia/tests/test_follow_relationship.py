@@ -165,7 +165,7 @@ class RetrieveFollowRelationshipAPITest(APITestCase):
         self.assertEqual(followings, [1])
 
 
-class SpecifyFollowRequestStatusAPITest(APITestCase):
+class FollowRequestStatusAPIViewTest(APITestCase):
     fixtures = ['user_fixture']
 
     def test_accept_follow_relationship_when_not_exists(self):

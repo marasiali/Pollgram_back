@@ -77,13 +77,12 @@ class FollowersAPIView(ListAPIView):
         return user.get_followers()
 
 
-class SpecifyFollowRequestStatusAPIView(APIView):
+class FollowRequestStatusAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_pk):
 
-        follower_user = get_object_or_404(User, id=user_pk)
-        follow_relationship = get_object_or_404(FollowRelationship, from_user=follower_user, to_user=request.user)
+        follow_relationship = get_object_or_404(FollowRelationship, from_user__pk=user_pk, to_user=request.user)
         follow_relationship.pending = False
         follow_relationship.save()
         return Response({
@@ -91,9 +90,6 @@ class SpecifyFollowRequestStatusAPIView(APIView):
         }, status=status.HTTP_201_CREATED)
 
     def delete(self, request, user_pk):
-        follower_user = get_object_or_404(User, id=user_pk)
-        follow_relationship = get_object_or_404(FollowRelationship, from_user=follower_user, to_user=request.user)
+        follow_relationship = get_object_or_404(FollowRelationship, from_user__pk=user_pk, to_user=request.user)
         follow_relationship.delete()
-        return Response({
-            "status": "rejected"
-        }, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
