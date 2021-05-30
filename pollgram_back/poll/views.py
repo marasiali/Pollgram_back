@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
-from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollower
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer
 
@@ -25,7 +26,7 @@ class PollCreateAPIView(CreateAPIView):
 
 
 class VoteAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsFollower]
 
     def post(self, request, poll_pk):
         user = request.user
@@ -68,7 +69,7 @@ class VoteAPIView(APIView):
 
 
 class VotersListAPIView(ListAPIView):
-    permission_classes = [IsAuthenticated, IsCreatorOrPublicPoll]
+    permission_classes = [IsAuthenticated, IsCreatorOrPublicPoll, IsFollower]
     pagination_class = VotersPagination
     serializer_class = VoterUserSerializer
 
@@ -113,10 +114,10 @@ class CategoryPollsListAPIView(ListAPIView):
             sub_categories = category.get_sub_categories().prefetch_related('polls')
             polls = Poll.objects.none()
             for sub_cat in sub_categories:
-                polls = polls | sub_cat.polls.all()
-            return polls | category.polls.all()
+                polls = polls | sub_cat.polls.filter(creator__is_public=True)
+            return polls | category.polls.filter(creator__is_public=True)
         else:
-            return Poll.objects.filter(category=category)
+            return Poll.objects.filter(category=category, creator__is_public=True)
 
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
