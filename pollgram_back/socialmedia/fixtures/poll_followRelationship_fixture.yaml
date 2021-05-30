@@ -1,6 +1,12 @@
 -   model: socialmedia.followrelationship
-    pk: 2
+    pk: 1
     fields:
         from_user: 2
         to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 2
+    fields:
+        from_user: 1
+        to_user: 2
         pending: false
