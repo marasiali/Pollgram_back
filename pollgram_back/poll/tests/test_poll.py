@@ -432,8 +432,14 @@ class PollTest(APITestCase):
         self.assertEqual(2, get_voters_response_results[1]['id'])
         self.assertEqual(1, get_voters_response_results[2]['id'])
 
-    def test_get_private_page_poll_by_other_user_when_follow_request_not_accepted(self):
+    def test_get_private_page_poll_by_other_user_when_does_not_follow_the_user(self):
         user = User.objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    def test_get_private_page_poll_by_other_user_when_follow_request_not_accepted(self):
+        user = User.objects.get(id=3)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
