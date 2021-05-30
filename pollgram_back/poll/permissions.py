@@ -31,7 +31,6 @@ class IsCreatorOrPublicPoll(BasePermission):
 
 class IsFollower(BasePermission):
     def has_permission(self, request, view):
-        print(list(view.kwargs.values())[0])
         poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
 
         if poll.creator.get_followers().filter(pk=request.user.id).exists() or request.user == poll.creator:

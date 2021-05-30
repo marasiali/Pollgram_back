@@ -70,3 +70,34 @@
         bio: ''
         is_public: true
         is_verified: false
+-   model: socialmedia.followrelationship
+    pk: 1
+    fields:
+        from_user: 2
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 2
+    fields:
+        from_user: 1
+        to_user: 2
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 3
+    fields:
+        from_user: 3
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 4
+    fields:
+        from_user: 4
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 5
+    fields:
+        from_user: 3
+        to_user: 2
+        pending: false
+
