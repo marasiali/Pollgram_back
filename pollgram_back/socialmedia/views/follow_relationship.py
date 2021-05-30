@@ -77,7 +77,7 @@ class FollowersAPIView(ListAPIView):
         return user.get_followers()
 
 
-class FollowRequestStatusAPIView(APIView):
+class FollowRequestStatusHandlerAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_pk):
