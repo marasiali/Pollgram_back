@@ -11,6 +11,6 @@ urlpatterns = [
     path('user/timeline/', user.UserTimelineListAPIView.as_view(), name='timeline_api'),
     path('user/<int:pk>/polls/', user.PollListAPIView.as_view(), name='user_polls_api'),
     path('user/', user.UserListAPIView.as_view(), name='user_list_api'),
-    path('user/request-status/<int:user_pk>/', follow_relationship.SpecifyFollowRequestStatusAPIView.as_view(),
+    path('user/<int:user_pk>/request-status/', follow_relationship.SpecifyFollowRequestStatusAPIView.as_view(),
          name='specify_follow_request_status')
 ]
