@@ -8,10 +8,11 @@ class IsCreatorOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_superuser:
             return True
-        elif request.method in SAFE_METHODS:
+        elif request.method in SAFE_METHODS and (obj.creator.get_followers()).filter(pk=request.user.id).exists():
             return True
         elif request.user == obj.creator:
             return True
+
         else:
             return False
 
@@ -23,6 +24,17 @@ class IsCreatorOrPublicPoll(BasePermission):
         if request.user.is_superuser or poll.creator == request.user:
             return True
         elif poll.is_public and request.user.can_see_results(poll):
+            return True
+        else:
+            return False
+
+
+class IsFollower(BasePermission):
+    def has_permission(self, request, view):
+        print(list(view.kwargs.values())[0])
+        poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
+
+        if poll.creator.get_followers().filter(pk=request.user.id).exists() or request.user == poll.creator:
             return True
         else:
             return False
