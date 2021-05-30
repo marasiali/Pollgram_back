@@ -113,7 +113,7 @@ class PollTest(APITestCase):
         self.assertIsNotNone(data['all_votes'])
 
     def test_get_hidden_poll_by_other_user(self):
-        user = User.objects.get(id=1)
+        user = User.objects.get(id=6)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/', HTTP_AUTHORIZATION=token)
         data = response.data
@@ -459,3 +459,11 @@ class PollTest(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         data = response.data
         self.assertEqual(13, data['id'])
+
+    def test_get_public_page_poll(self):
+        user = User.objects.get(id=6)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/2/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+        self.assertEqual(2, data['id'])
