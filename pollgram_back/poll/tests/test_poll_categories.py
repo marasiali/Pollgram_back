@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from socialmedia.models import User
 
 
-class TestCategories(APITestCase):
+class CategoryTest(APITestCase):
     fixtures = ['poll_categories', 'users']
 
     def test_create_poll_with_category(self):

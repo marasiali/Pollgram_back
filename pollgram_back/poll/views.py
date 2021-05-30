@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
-from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollowerOrPublic
+from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollowerOrPublic, \
+    IsFollowerOrPublicForGetAPoll, IsFollowerOrPublicForGetAComment
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer
 
@@ -16,7 +17,7 @@ from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollRetrieveSerializer
-    permission_classes = [IsAuthenticated, IsCreatorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsCreatorOrReadOnly, IsFollowerOrPublicForGetAPoll]
 
 
 class PollCreateAPIView(CreateAPIView):
@@ -122,7 +123,7 @@ class CategoryPollsListAPIView(ListAPIView):
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsCreatorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsCreatorOrReadOnly, IsFollowerOrPublicForGetAComment]
     lookup_url_kwarg = "comment_pk"
 
     def get_queryset(self):
@@ -134,7 +135,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
     pagination_class = CommentPagination
-    permission_classes = [IsAuthenticated, CommentFilterPermission]
+    permission_classes = [IsAuthenticated, CommentFilterPermission, IsFollowerOrPublic]
     ordering_fields = ['likes', 'dislikes']
 
     def get_serializer_context(self):
@@ -158,7 +159,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
 class ReplyListAPIView(ListAPIView):
     pagination_class = ReplyPagination
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsFollowerOrPublic]
 
     def get_queryset(self):
         comment = get_object_or_404(Comment, id=self.kwargs['comment_pk'])
@@ -166,7 +167,7 @@ class ReplyListAPIView(ListAPIView):
 
 
 class LikeAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsFollowerOrPublic]
 
     def post(self, request, poll_pk, comment_pk):
         user = request.user
@@ -192,7 +193,7 @@ class LikeAPIView(APIView):
 
 
 class DislikeAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsFollowerOrPublic]
 
     def post(self, request, poll_pk, comment_pk):
         user = request.user
