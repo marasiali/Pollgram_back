@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -151,7 +151,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
             return Comment.objects.filter(creator__in=users, poll=poll)
         else:
             poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
-            return poll.comments.all()
+            return poll.comments.all().filter(parent=None)
 
 
 class ReplyListAPIView(ListAPIView):
