@@ -139,14 +139,14 @@ class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
     dislikes_count = serializers.IntegerField(source='dislikes.count', read_only=True)
     has_reply = serializers.SerializerMethodField('comment_has_reply')
-    like_status = serializers.SerializerMethodField('how_like_status')
+    like_status = serializers.SerializerMethodField('get_like_status')
 
     def comment_has_reply(self, obj):
         if obj.replies.count() == 0:
             return False
         return True
 
-    def how_like_status(self, obj):
+    def get_like_status(self, obj):
         user = self.context['request'].user
         if obj.likes.filter(pk=user.pk).exists():
             return 'liked'
