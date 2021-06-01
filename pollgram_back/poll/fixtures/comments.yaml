@@ -1,0 +1,175 @@
+-   model: poll.category
+    pk: 1
+    fields:
+        name: learning
+        parent: null
+        order: 1
+-   model: poll.category
+    pk: 2
+    fields:
+        name: language
+        parent: 1
+        order: 2
+-   model: poll.category
+    pk: 3
+    fields:
+        name: programming
+        parent: 1
+        order: 3
+-   model: poll.category
+    pk: 4
+    fields:
+        name: digital
+        parent: null
+        order: 4
+-   model: poll.poll
+    pk: 12
+    fields:
+        creator: 1
+        created_at: 2021-05-22 19:17:28.417656+00:00
+        question: test qu 12
+        description: test des 12
+        is_commentable: true
+        image: null
+        file: null
+        max_choice_can_vote: 3
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: true
+        is_public: true
+        visibility_status: VA
+        category: null
+-   model: poll.poll
+    pk: 21
+    fields:
+        creator: 6
+        created_at: 2021-05-28 12:58:05.642226+00:00
+        question: test private page
+        description: ''
+        is_commentable: true
+        image: null
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: false
+        visibility_status: VA
+        category: 4
+-   model: poll.poll
+    pk: 22
+    fields:
+        creator: 6
+        created_at: 2021-05-28 13:17:12.392011+00:00
+        question: test private page in sub category
+        description: ''
+        is_commentable: true
+        image: null
+        file: null
+        max_choice_can_vote: 2
+        min_choice_can_vote: 1
+        attached_http_link: ''
+        is_vote_retractable: false
+        is_public: false
+        visibility_status: VI
+        category: 2
+-   model: poll.choice
+    pk: 36
+    fields:
+        context: Ford
+        poll: 12
+        order: 1
+-   model: poll.choice
+    pk: 37
+    fields:
+        context: BMW
+        poll: 12
+        order: 2
+-   model: poll.choice
+    pk: 38
+    fields:
+        context: Benz
+        poll: 12
+        order: 3
+-   model: poll.choice
+    pk: 39
+    fields:
+        context: Tesla
+        poll: 12
+        order: 4
+-   model: poll.choice
+    pk: 62
+    fields:
+        context: Ford
+        poll: 21
+        order: 1
+-   model: poll.choice
+    pk: 63
+    fields:
+        context: BMW
+        poll: 21
+        order: 2
+-   model: poll.choice
+    pk: 64
+    fields:
+        context: Benz
+        poll: 21
+        order: 3
+-   model: poll.choice
+    pk: 65
+    fields:
+        context: Ford
+        poll: 22
+        order: 1
+-   model: poll.choice
+    pk: 66
+    fields:
+        context: BMW
+        poll: 22
+        order: 2
+-   model: poll.choice
+    pk: 67
+    fields:
+        context: Benz
+        poll: 22
+        order: 3
+-   model: poll.comment
+    pk: 1
+    fields:
+        creator: 6
+        created_at: 2021-05-30 21:41:48.119377+00:00
+        content: i like ford
+        poll: 22
+        parent: null
+        likes: []
+        dislikes: []
+-   model: poll.comment
+    pk: 2
+    fields:
+        creator: 2
+        created_at: 2021-05-30 21:42:56.985471+00:00
+        content: i like benz more
+        poll: 22
+        parent: null
+        likes: []
+        dislikes: []
+-   model: poll.comment
+    pk: 4
+    fields:
+        creator: 2
+        created_at: 2021-05-30 23:10:06.655662+00:00
+        content: I hate ford
+        poll: 22
+        parent: 1
+        likes: []
+        dislikes: []
+-   model: poll.comment
+    pk: 5
+    fields:
+        creator: 6
+        created_at: 2021-05-30 23:11:47.201592+00:00
+        content: I don't give a shit
+        poll: 22
+        parent: 1
+        likes: []
+        dislikes: []

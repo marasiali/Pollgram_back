@@ -163,3 +163,38 @@ class RetrieveFollowRelationshipAPITest(APITestCase):
         self.assertEqual(response.data['count'], 1)
         followings = list(map(lambda item: item['id'], response.data['results']))
         self.assertEqual(followings, [1])
+
+
+class FollowRequestStatusHandlerAPIViewTest(APITestCase):
+    fixtures = ['user_fixture']
+
+    def test_accept_follow_relationship_when_not_exists(self):
+        user = get_user_model().objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/user/100/follow-request-status/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_accept_follow_request(self):
+        # user 2 follow request for user 4 is pending
+        user = get_user_model().objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/user/2/follow-request-status/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        follow_relationship = FollowRelationship.objects.filter(from_user=2, to_user=user.id)
+        self.assertEqual('accepted', response.data['status'])
+        self.assertFalse(follow_relationship[0].pending)
+
+    def test_reject_follow_request_when_not_exists(self):
+        user = get_user_model().objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.delete('/api/user/100/follow-request-status/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_reject_follow_request(self):
+        # user 3 follow request for user 4 is pending
+        user = get_user_model().objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.delete('/api/user/3/follow-request-status/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        follow_relationship = FollowRelationship.objects.filter(from_user=3, to_user=user.id)
+        self.assertFalse(follow_relationship.exists())

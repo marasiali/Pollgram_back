@@ -16,7 +16,7 @@ from ..serializers.user import (
     UserAvatarSerializer,
     UserCoverSerializer, UserSummarySerializer,
 )
-from ..permissons import IsSelfOrReadOnly
+from ..permissons import IsSelfOrReadOnly, IsFollowerOrPublic
 
 
 class UserAPIView(RetrieveUpdateDestroyAPIView):
@@ -68,7 +68,7 @@ class UserTimelineListAPIView(ListAPIView):
 
 
 class PollListAPIView(ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsFollowerOrPublic]
     pagination_class = PollPagination
     serializer_class = PollRetrieveSerializer
 

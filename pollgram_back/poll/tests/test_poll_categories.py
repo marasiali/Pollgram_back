@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from socialmedia.models import User
 
 
-class TestCategories(APITestCase):
+class CategoryTest(APITestCase):
     fixtures = ['poll_categories', 'users']
 
     def test_create_poll_with_category(self):
@@ -53,6 +53,7 @@ class TestCategories(APITestCase):
         self.assertIsNone(data['category'])
 
     def test_get_main_category_polls_when_does_not_have_sub_category(self):
+        # poll with id 21 belongs to a private page and main category. it doesn't exist in the response
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/category/4/', HTTP_AUTHORIZATION=token)
@@ -63,6 +64,7 @@ class TestCategories(APITestCase):
         self.assertEqual('digital', data[0]['category']['name'])
 
     def test_get_main_category_polls_when_has_sub_category(self):
+        # poll 22 and 23 belong to private page, they don't exist in the response
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/category/1/', HTTP_AUTHORIZATION=token)
@@ -75,6 +77,7 @@ class TestCategories(APITestCase):
 
     def test_get_sub_category_polls(self):
         # category 3 is category 1 sub category
+        # poll with id 23 belongs to a private page and sub category. it doesn't exist in the response
 
         user = User.objects.get(id=2)
         token = f'Bearer {str(AccessToken.for_user(user))}'

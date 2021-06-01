@@ -70,3 +70,59 @@
         bio: ''
         is_public: true
         is_verified: false
+-   model: socialmedia.user
+    pk: 6
+    fields:
+        password: pbkdf2_sha256$216000$0yHJznOG39Ul$z69ZT0R/tIducDF4CfxuI0frW3ZybB6eup5v+4O5o2E=
+        is_superuser: false
+        username: hamid
+        first_name: hamid
+        last_name: hor
+        email: hamid@gmail.com
+        avatar: ''
+        cover: ''
+        bio: ''
+        is_public: false
+        is_verified: false
+-   model: socialmedia.followrelationship
+    pk: 1
+    fields:
+        from_user: 2
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 2
+    fields:
+        from_user: 1
+        to_user: 2
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 3
+    fields:
+        from_user: 3
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 4
+    fields:
+        from_user: 4
+        to_user: 1
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 5
+    fields:
+        from_user: 3
+        to_user: 2
+        pending: false
+-   model: socialmedia.followrelationship
+    pk: 6
+    fields:
+        from_user: 3
+        to_user: 6
+        pending: true
+-   model: socialmedia.followrelationship
+    pk: 7
+    fields:
+        from_user: 2
+        to_user: 6
+        pending: false

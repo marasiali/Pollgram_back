@@ -113,7 +113,7 @@ class PollTest(APITestCase):
         self.assertIsNotNone(data['all_votes'])
 
     def test_get_hidden_poll_by_other_user(self):
-        user = User.objects.get(id=1)
+        user = User.objects.get(id=6)
         token = f'Bearer {str(AccessToken.for_user(user))}'
         response = self.client.get('/api/poll/5/', HTTP_AUTHORIZATION=token)
         data = response.data
@@ -431,3 +431,39 @@ class PollTest(APITestCase):
         self.assertEqual(3, get_voters_response_results[0]['id'])
         self.assertEqual(2, get_voters_response_results[1]['id'])
         self.assertEqual(1, get_voters_response_results[2]['id'])
+
+    def test_get_private_page_poll_by_other_user_when_does_not_follow_the_user(self):
+        user = User.objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    def test_get_private_page_poll_by_other_user_when_follow_request_not_accepted(self):
+        user = User.objects.get(id=3)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    def test_get_private_page_poll_by_other_user_when_follow_request_accepted(self):
+        user = User.objects.get(id=2)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+        self.assertEqual(13, data['id'])
+
+    def test_get_private_page_poll_by_creator(self):
+        user = User.objects.get(id=6)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/13/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+        self.assertEqual(13, data['id'])
+
+    def test_get_public_page_poll(self):
+        user = User.objects.get(id=6)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/2/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+        self.assertEqual(2, data['id'])
