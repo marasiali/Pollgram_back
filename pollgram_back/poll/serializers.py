@@ -139,16 +139,28 @@ class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
     dislikes_count = serializers.IntegerField(source='dislikes.count', read_only=True)
     has_reply = serializers.SerializerMethodField('comment_has_reply')
+    like_status = serializers.SerializerMethodField('get_like_status')
 
     def comment_has_reply(self, obj):
         if obj.replies.count() == 0:
             return False
         return True
 
+    def get_like_status(self, obj):
+        user = self.context['request'].user
+        if obj.likes.filter(pk=user.pk).exists():
+            return 'liked'
+        elif obj.dislikes.filter(pk=user.pk).exists():
+            return 'disliked'
+        else:
+            return None
+
     class Meta:
         model = Comment
-        fields = ('id', 'created_at', 'content', 'creator', 'parent', 'likes_count', 'dislikes_count', 'poll', 'has_reply')
-        read_only_fields = ('id', 'poll', 'has_reply')
+        fields = (
+            'id', 'created_at', 'content', 'creator', 'parent', 'likes_count', 'dislikes_count', 'poll', 'has_reply',
+            'like_status')
+        read_only_fields = ('id', 'poll', 'has_reply', 'like_status')
 
     def create(self, validated_data):
         validated_data['creator'] = self.context['request'].user
