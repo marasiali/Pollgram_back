@@ -153,7 +153,7 @@ class CommentListCreateAPIView(ListCreateAPIView):
             return Comment.objects.filter(creator__in=users, poll=poll)
         else:
             poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
-            return poll.comments.all()
+            return poll.comments.filter(parent=None)
 
 
 class ReplyListAPIView(ListAPIView):
