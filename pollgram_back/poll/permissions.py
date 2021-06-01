@@ -18,10 +18,9 @@ class IsCreatorOrReadOnly(BasePermission):
 
 class IsFollowerOrPublicForGetAPoll(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.creator.is_public or request.user == obj.creator:
+        if obj.creator.is_public or request.user == obj.creator or request.user.is_superuser:
             return True
-        elif (obj.creator.get_followers()).filter(pk=request.user.id).exists():
-            print((obj.creator.get_followers()).filter(pk=request.user.id).exists())
+        elif obj.creator.get_followers().filter(pk=request.user.id).exists():
             return True
         else:
             return False
@@ -29,7 +28,7 @@ class IsFollowerOrPublicForGetAPoll(BasePermission):
 
 class IsFollowerOrPublicForGetAComment(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.poll.creator.is_public or request.user == obj.poll.creator:
+        if obj.poll.creator.is_public or request.user == obj.poll.creator or request.user.is_superuser:
             return True
         elif obj.poll.creator.get_followers().filter(pk=request.user.id).exists():
             return True
@@ -53,8 +52,8 @@ class IsFollowerOrPublic(BasePermission):
     def has_permission(self, request, view):
         poll = get_object_or_404(Poll, pk=view.kwargs['poll_pk'])
 
-        if poll.creator.get_followers().filter(
-                pk=request.user.id).exists() or request.user == poll.creator or poll.creator.is_public:
+        if request.user == poll.creator or poll.creator.is_public or poll.creator.get_followers().filter(
+                pk=request.user.id).exists():
             return True
         else:
             return False
