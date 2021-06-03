@@ -20,7 +20,7 @@ urlpatterns = [
     path('<int:poll_pk>/comment/<int:comment_pk>/like/', LikeAPIView.as_view(), name='like'),
     path('<int:poll_pk>/comment/<int:comment_pk>/dislike/', DislikeAPIView.as_view(), name='dislike'),
 
-    path('<int:pk>/chart/circle/', CircularChartAPIView.as_view(), name='circle_chart'),
+    path('<int:poll_pk>/chart/circle/', CircularChartAPIView.as_view(), name='circle_chart'),
 
 ]
 

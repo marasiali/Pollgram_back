@@ -224,6 +224,6 @@ class CircularChartAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsSelf]
 
     def get_queryset(self):
-        poll = get_object_or_404(Poll, pk=self.kwargs.get('pk'))
+        poll = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
         return poll.choices
 
