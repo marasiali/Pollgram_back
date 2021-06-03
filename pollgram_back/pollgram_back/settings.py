@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'pollgram_auth',
     'poll',
     'notification_system.apps.NotificationSystemConfig',
+
+    'rest_captcha',
 ]
 
 MIDDLEWARE = [
