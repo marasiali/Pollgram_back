@@ -16,6 +16,6 @@ urlpatterns = [
     path('user/', UserListAPIView.as_view(), name='user_list_api'),
     path('user/<int:user_pk>/follow-request-status/', FollowRequestStatusHandlerAPIView.as_view(),
          name='follow_request_status'),
-    path('user/follow-request/', FollowRequestListAPIView.as_view(), name='user_follow_requests'),
+    path('user/follow-request/', FollowRequestListAPIView.as_view(), name='follow_request_list'),
 
 ]
