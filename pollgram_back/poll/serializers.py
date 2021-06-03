@@ -45,11 +45,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ChoiceSerializer(serializers.ModelSerializer):
     vote_count = serializers.IntegerField(default=None, read_only=True)
-    poll = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Choice
-        fields = ('order', 'context', 'poll', 'vote_count')
+        fields = ('order', 'context', 'vote_count')
 
     def to_representation(self, instance):
         data = super(ChoiceSerializer, self).to_representation(instance)
