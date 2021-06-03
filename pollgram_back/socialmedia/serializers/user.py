@@ -97,3 +97,17 @@ class UserSummarySerializer(serializers.ModelSerializer):
             'is_public',
             'is_verified',
         )
+
+
+class UserMinimalInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'avatar',
+            'is_public',
+            'is_verified',
+        )

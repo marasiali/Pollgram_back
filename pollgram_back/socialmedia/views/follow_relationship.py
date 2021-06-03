@@ -5,10 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from ..models import FollowRelationship, User
-from ..pagination import DefaultPagination
+from ..models import FollowRelationship
+from ..pagination import DefaultPagination, FollowRequestPagination
 from ..permissons import IsSelfOrReadOnly
-from ..serializers.user import UserSummarySerializer
+from ..serializers.user import UserSummarySerializer, UserMinimalInfoSerializer
 
 
 class FollowAPIView(APIView):
@@ -93,3 +93,14 @@ class FollowRequestStatusHandlerAPIView(APIView):
         follow_relationship = get_object_or_404(FollowRelationship, from_user__pk=user_pk, to_user=request.user)
         follow_relationship.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FollowRequestListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserMinimalInfoSerializer
+    pagination_class = FollowRequestPagination
+
+    def get_queryset(self):
+        follow_relationships = FollowRelationship.objects.filter(to_user=self.request.user.id, pending=True)
+        from_user_ids = follow_relationships.values_list('from_user', flat=True)
+        return get_user_model().objects.filter(id__in=from_user_ids)
