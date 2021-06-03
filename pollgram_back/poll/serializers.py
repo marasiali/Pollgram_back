@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from poll.models import Poll, Choice, Vote, File, Image, Category, Comment
 from socialmedia.models import User
@@ -77,6 +78,13 @@ class PollCreateSerializer(serializers.ModelSerializer):
             Choice.objects.create(poll=poll, **choice)
         return poll
 
+    def validate(self, data):
+        if data['min_choice_can_vote'] > data['max_choice_can_vote']:
+            raise ValidationError('min_choice_can_vote can not be greater than max_choice_can_vote')
+        if not (2 <= len(data['choices']) <= 10):
+            raise ValidationError('you can not create poll with less than 2 choices')
+        return data
+
 
 class VoteResponseSerializer(serializers.ModelSerializer):
     selected = serializers.SerializerMethodField('get_selected_votes')
@@ -116,9 +124,9 @@ class PollRetrieveSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(PollRetrieveSerializer, self).to_representation(instance)
+        data['voted_choices'] = self.get_user_voted_choices(instance)
         if self.context['request'].user.can_see_results(instance):
             data['all_votes'] = self.get_all_votes(instance)
-            data['voted_choices'] = self.get_user_voted_choices(instance)
         return data
 
     def get_all_votes(self, obj):
