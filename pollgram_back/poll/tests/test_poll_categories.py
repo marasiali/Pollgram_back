@@ -23,6 +23,8 @@ class CategoryTest(APITestCase):
                     "order": "2"
                 }
             ],
+            "min_choice_can_vote": 1,
+            "max_choice_can_vote": 1,
             "category": "1"
         }, HTTP_AUTHORIZATION=token, format='json')
 
@@ -45,6 +47,8 @@ class CategoryTest(APITestCase):
                     "order": "2"
                 }
             ],
+            "min_choice_can_vote": 1,
+            "max_choice_can_vote": 1,
             "category": None
         }, HTTP_AUTHORIZATION=token, format='json')
 
