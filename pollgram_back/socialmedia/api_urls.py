@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.follow_relationship import FollowAPIView, FollowingsAPIView, FollowersAPIView, \
-    FollowRequestStatusHandlerAPIView
+    FollowRequestStatusHandlerAPIView, FollowRequestListAPIView
 from .views.user import UserAPIView, UserAvatarAPIView, UserCoverAPIView, UserTimelineListAPIView, PollListAPIView, \
     UserListAPIView
 
@@ -15,5 +15,7 @@ urlpatterns = [
     path('user/<int:pk>/polls/', PollListAPIView.as_view(), name='user_polls_api'),
     path('user/', UserListAPIView.as_view(), name='user_list_api'),
     path('user/<int:user_pk>/follow-request-status/', FollowRequestStatusHandlerAPIView.as_view(),
-         name='follow_request_status')
+         name='follow_request_status'),
+    path('user/follow-request/', FollowRequestListAPIView.as_view(), name='user_follow_requests'),
+
 ]
