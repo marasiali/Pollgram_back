@@ -9,7 +9,7 @@ from socialmedia.models import User
 from .models import Poll, Vote, Image, File, Choice, Category, Comment
 from .paginations import VotersPagination, PollPagination, CommentPagination, ReplyPagination
 from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilterPermission, IsFollowerOrPublic, \
-    IsFollowerOrPublicForGetAPoll, IsFollowerOrPublicForGetAComment
+    IsFollowerOrPublicForGetAPoll, IsFollowerOrPublicForGetAComment, IsSelf
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer, \
     ChoiceSerializer
@@ -221,7 +221,7 @@ class DislikeAPIView(APIView):
 
 class CircularChartAPIView(ListAPIView):
     serializer_class = ChoiceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSelf]
 
     def get_queryset(self):
         poll = get_object_or_404(Poll, pk=self.kwargs.get('pk'))
