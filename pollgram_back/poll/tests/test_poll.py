@@ -32,7 +32,9 @@ class PollTest(APITestCase):
                     "context": "22",
                     "order": "2"
                 }
-            ]
+            ],
+            "min_choice_can_vote": 1,
+            "max_choice_can_vote": 1
         }, HTTP_AUTHORIZATION=token, format='json')
         data = response.data
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
@@ -55,6 +57,91 @@ class PollTest(APITestCase):
         self.assertEqual(1, data['max_choice_can_vote'])
         self.assertEqual(1, data['min_choice_can_vote'])
         self.assertEqual('VA', data['visibility_status'])
+
+    def test_create_poll_when_min_choice_can_vote_is_greater_than_max_choice_can_vote(self):
+        user = User.objects.get(id=1)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/', {
+            "question": "how old are you?",
+            "description": "about age",
+            "choices": [
+                {
+                    "context": "48",
+                    "order": "1"
+                },
+                {
+                    "context": "22",
+                    "order": "2"
+                }
+            ],
+            "min_choice_can_vote": 3,
+            "max_choice_can_vote": 1
+        }, HTTP_AUTHORIZATION=token, format='json')
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_create_poll_when_poll_have_less_than_two_choice(self):
+        user = User.objects.get(id=1)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/', {
+            "question": "how old are you?",
+            "description": "about age",
+            "choices": [
+                {
+                    "context": "48",
+                    "order": "1"
+                }
+            ],
+            "min_choice_can_vote": 1,
+            "max_choice_can_vote": 1
+        }, HTTP_AUTHORIZATION=token, format='json')
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_create_poll_when_poll_have_more_than_ten_choice(self):
+        user = User.objects.get(id=1)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/', {
+            "question": "how old are you?",
+            "description": "about age",
+            "choices": [
+                {
+                    "context": "48",
+                    "order": "1"
+                },                {
+                    "context": "48",
+                    "order": "2"
+                },                {
+                    "context": "48",
+                    "order": "3"
+                },                {
+                    "context": "48",
+                    "order": "4"
+                },                {
+                    "context": "48",
+                    "order": "5"
+                },                {
+                    "context": "48",
+                    "order": "6"
+                },                {
+                    "context": "48",
+                    "order": "7"
+                },                {
+                    "context": "48",
+                    "order": "8"
+                },                {
+                    "context": "48",
+                    "order": "9"
+                },                {
+                    "context": "48",
+                    "order": "10"
+                },                {
+                    "context": "48",
+                    "order": "10"
+                }
+            ],
+            "min_choice_can_vote": 1,
+            "max_choice_can_vote": 1
+        }, HTTP_AUTHORIZATION=token, format='json')
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
 
     def test_get_visible_poll(self):
         user = User.objects.get(id=1)
@@ -316,7 +403,7 @@ class PollTest(APITestCase):
         self.assertIsNone(poll_data['choices'][1]['vote_count'])
         self.assertIsNone(poll_data['choices'][2]['vote_count'])
         self.assertIsNone(poll_data['choices'][3]['vote_count'])
-        self.assertEqual([], poll_data['voted_choices'])
+        self.assertEqual([], list(poll_data['voted_choices']))
 
     def test_retract_vote_when_poll_is_not_vote_retractable(self):
         # poll with id 5 is not vote retractable
