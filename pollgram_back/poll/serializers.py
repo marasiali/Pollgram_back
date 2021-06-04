@@ -190,14 +190,3 @@ class CommentSerializer(serializers.ModelSerializer):
             raise Http404()
         return data
 
-
-class BarChartSerializer(serializers.ModelSerializer):
-    date = serializers.DateField(source='created_at')
-    count = serializers.SerializerMethodField('get_count')
-
-    class Meta:
-        model = Vote
-        fields = ('date', 'count')
-
-    def get_count(self, obj):
-        return obj['count']
