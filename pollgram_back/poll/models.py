@@ -108,6 +108,7 @@ class Choice(models.Model):
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='votes')
     selected = models.ManyToManyField(Choice, related_name='votes')
+    created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return 'Vote = id: {}, userId: {}, choiceId: {}'.format(self.id, self.user.id, self.selected.id)
