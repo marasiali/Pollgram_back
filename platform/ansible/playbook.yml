@@ -12,6 +12,7 @@
       - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/postgres/"
       - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/static/"
       - "/home/{{ server_user }}/{{ deploy_data_dir }}/{{ stack_name }}/media/"
+      - "/home/{{ server_user }}/{{ frontend_dir }}/build/"
   - name: cofig ssh for github deploy key
     template:
       src: sshconfig
@@ -87,6 +88,7 @@
     POSTGRES_EXPOSE_ON_PORT: "{{ postgres_expose_on_port }}"
     DEPLOY_PORT: "{{ deploy_port }}"
     DEPLOY_DATA_DIR: "{{ deploy_data_dir }}"
+    FRONTEND_DIR: "{{ frontend_dir }}"
   tasks:
   - name: Ensure docker is started
     service:
