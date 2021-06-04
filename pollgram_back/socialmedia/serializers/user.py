@@ -4,6 +4,10 @@ from django.contrib.auth import get_user_model
 
 class UserAdminAccessSerializer(serializers.ModelSerializer):
 
+    def get_block_status(self, user):
+        loggedin_user = self.context['request'].user
+        return loggedin_user.blocked_users.filter(pk=user.pk).exists()
+        
     def get_follow_status(self, to_user):
         loggedin_user = self.context['request'].user
         return loggedin_user.get_follow_status(to_user=to_user)
@@ -11,6 +15,7 @@ class UserAdminAccessSerializer(serializers.ModelSerializer):
     follow_status = serializers.SerializerMethodField('get_follow_status')
     followers_count = serializers.IntegerField(source='get_followers.count', read_only=True)
     followings_count = serializers.IntegerField(source='get_followings.count', read_only=True)
+    is_blocked = serializers.SerializerMethodField('get_block_status')
 
     class Meta:
         model = get_user_model()
@@ -28,11 +33,16 @@ class UserAdminAccessSerializer(serializers.ModelSerializer):
             'follow_status',
             'followers_count',
             'followings_count',
+            'is_blocked',
         )
         read_only_fields = ('id', 'avatar', 'cover',)
 
 
 class UserBaseAccessSerializer(serializers.ModelSerializer):
+    
+    def get_block_status(self, user):
+        loggedin_user = self.context['request'].user
+        return loggedin_user.blocked_users.filter(pk=user.pk).exists()
 
     def get_follow_status(self, to_user):
         loggedin_user = self.context['request'].user
@@ -41,6 +51,7 @@ class UserBaseAccessSerializer(serializers.ModelSerializer):
     follow_status = serializers.SerializerMethodField('get_follow_status')
     followers_count = serializers.IntegerField(source='get_followers.count', read_only=True)
     followings_count = serializers.IntegerField(source='get_followings.count', read_only=True)
+    is_blocked = serializers.SerializerMethodField('get_block_status')
 
     class Meta:
         model = get_user_model()
@@ -58,6 +69,7 @@ class UserBaseAccessSerializer(serializers.ModelSerializer):
             'follow_status',
             'followers_count',
             'followings_count',
+            'is_blocked',
         )
         read_only_fields = ('id', 'avatar', 'cover', 'email', 'is_verified',)
 
