@@ -21,6 +21,7 @@ urlpatterns = [
     path('<int:poll_pk>/comment/<int:comment_pk>/dislike/', DislikeAPIView.as_view(), name='dislike'),
 
     path('<int:poll_pk>/chart/circle/', CircularChartAPIView.as_view(), name='circle_chart'),
+    path('<int:poll_pk>/chart/bar/', BarChartAPIView.as_view(), name='bar_chart')
 
 ]
 
