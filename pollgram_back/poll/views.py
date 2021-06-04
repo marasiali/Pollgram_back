@@ -178,7 +178,7 @@ class ReplyListAPIView(ListAPIView):
 
     def get_queryset(self):
         comment = get_object_or_404(Comment, ~Q(creator__blocked_users=self.request.user),
-                                    ~Q(poll__creator__blocked_users=self.request.user), \
+                                    ~Q(poll__creator__blocked_users=self.request.user),
                                     id=self.kwargs['comment_pk'])
         return comment.replies.all().exclude(creator__blocked_users=self.request.user)
 
@@ -189,7 +189,7 @@ class LikeAPIView(APIView):
     def post(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, ~Q(creator__blocked_users=request.user),
-                                    ~Q(poll__creator__blocked_users=request.user), \
+                                    ~Q(poll__creator__blocked_users=request.user),
                                     pk=comment_pk)
         if comment.likes.filter(pk=user.pk).exists():
             return Response({"msg": "already liked"}, status=status.HTTP_409_CONFLICT)
@@ -203,7 +203,7 @@ class LikeAPIView(APIView):
     def delete(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, ~Q(creator__blocked_users=request.user),
-                                    ~Q(poll__creator__blocked_users=request.user), \
+                                    ~Q(poll__creator__blocked_users=request.user),
                                     pk=comment_pk)
         if not comment.likes.filter(pk=user.pk).exists():
             return Response({"msg": "not liked"}, status=status.HTTP_409_CONFLICT)
@@ -219,7 +219,7 @@ class DislikeAPIView(APIView):
     def post(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, ~Q(creator__blocked_users=request.user),
-                                    ~Q(poll__creator__blocked_users=request.user), \
+                                    ~Q(poll__creator__blocked_users=request.user),
                                     pk=comment_pk)
         if comment.dislikes.filter(pk=user.pk).exists():
             return Response({"msg": "already disliked"}, status=status.HTTP_409_CONFLICT)
@@ -233,7 +233,7 @@ class DislikeAPIView(APIView):
     def delete(self, request, poll_pk, comment_pk):
         user = request.user
         comment = get_object_or_404(Comment, ~Q(creator__blocked_users=request.user),
-                                    ~Q(poll__creator__blocked_users=request.user), \
+                                    ~Q(poll__creator__blocked_users=request.user),
                                     pk=comment_pk)
         if not comment.dislikes.filter(pk=user.pk).exists():
             return Response({"msg": "not disliked"}, status=status.HTTP_409_CONFLICT)
@@ -262,10 +262,10 @@ class BarChartAPIView(APIView):
             count=Count('created_at'))
         today = timezone.now().date()
         results_list = list(results_qs)
-        exist_dates = [item['created_at'] for item in results_list]
+        available_dates = [item['created_at'] for item in results_list]
         for i in range(10):
             this_date = today - timedelta(days=i)
-            if this_date not in exist_dates:
+            if this_date not in available_dates:
                 this_date_count_dict = {
                     "created_at": this_date,
                     "count": 0
