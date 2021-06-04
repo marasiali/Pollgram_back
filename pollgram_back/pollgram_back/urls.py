@@ -13,7 +13,9 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('api/notification/', include('notification_system.api_urls'), name='notification_system')
+    path('api/notification/', include('notification_system.api_urls'), name='notification_system'),
+
+    path('api/captcha/', include('rest_captcha.urls')),
 ]
 
 if not settings.IS_DOCKERIZED:
