@@ -10,7 +10,7 @@ urlpatterns = [
     path('image/', ImageCreateAPIView.as_view(), name='image'),
     path('file/', FileCreateAPIView.as_view(), name='file'),
     path('category/', CategoryListAPIView.as_view(), name='categories'),
-    path('category/<int:cat_pk>/', CategoryPollsListAPIView.as_view(), name='category_polls'),
+    path('category/<int:cat_pk>/', CategoryPollListAPIView.as_view(), name='category_polls'),
 
     path('<int:poll_pk>/comment/', CommentListCreateAPIView.as_view(), name='comment_list_create'),
     path('<int:poll_pk>/comment/<int:comment_pk>/', CommentRetrieveDestroyAPIView.as_view(), name='comment_retrieve_destroy'),
