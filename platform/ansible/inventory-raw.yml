@@ -34,4 +34,4 @@ pollgramserver:
     deploy_data_dir: "$DEPLOY_DATA_DIR"
     git_branch_name: "$GIT_BRANCH_NAME"
     ansible_deploy_stack_no_log: "$ANSIBLE_DEPLOY_STACK_NO_LOG"
-    frontend_dir: "frontend/Pollgram"
+    frontend_dir: "$FRONTEND_DIR"
