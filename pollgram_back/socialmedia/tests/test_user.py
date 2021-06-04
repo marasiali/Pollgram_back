@@ -37,7 +37,8 @@ class UserRetrieveAPITest(APITestCase):
             "is_verified": False,
             "follow_status": None,
             "followers_count": 0,
-            "followings_count": 0
+            "followings_count": 0,
+            "is_blocked": False
         })
 
     def test_retrieve_nonadmin_by_unauthorized(self):
@@ -62,7 +63,8 @@ class UserRetrieveAPITest(APITestCase):
             "is_verified": False,
             "follow_status": "Pending",
             "followers_count": 0,
-            "followings_count": 1
+            "followings_count": 1,
+            "is_blocked": False
         })
 
     def test_retrieve_nonadmin_by_self(self):
@@ -83,7 +85,8 @@ class UserRetrieveAPITest(APITestCase):
             "is_verified": False,
             "follow_status": None,
             "followers_count": 0,
-            "followings_count": 1
+            "followings_count": 1,
+            "is_blocked": False
         })
 
     def test_retrieve_nonadmin_by_admin(self):
@@ -104,7 +107,8 @@ class UserRetrieveAPITest(APITestCase):
             "is_verified": False,
             "follow_status": "NotFollowed",
             "followers_count": 0,
-            "followings_count": 1
+            "followings_count": 1,
+            "is_blocked": False
         })
 
 
