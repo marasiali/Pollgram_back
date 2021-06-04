@@ -1,7 +1,12 @@
+from datetime import timedelta
+
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView, \
+    RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +18,7 @@ from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilt
     IsFollowerOrPublicForGetAPoll, IsFollowerOrPublicForGetAComment, IsSelf
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer, \
-    ChoiceSerializer
+    ChoiceSerializer, BarChartSerializer
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -236,3 +241,14 @@ class CircularChartAPIView(ListAPIView):
         poll = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
         return poll.choices
 
+
+class BarChartAPIView(ListAPIView):
+    serializer_class = BarChartSerializer
+    permission_classes = [IsAuthenticated, IsSelf]
+
+    def get_queryset(self):
+        last_weak_date = timezone.now().date() - timedelta(days=10)
+        results = Vote.objects.filter(selected__poll__pk=self.kwargs.get('poll_pk'),
+                                      created_at__gte=last_weak_date).values('created_at').annotate(
+            count=Count('created_at'))
+        return results
