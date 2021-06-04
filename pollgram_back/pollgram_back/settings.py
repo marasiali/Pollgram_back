@@ -53,13 +53,13 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'notifications',
+    'rest_captcha',
 
     'socialmedia',
     'pollgram_auth',
     'poll',
     'notification_system.apps.NotificationSystemConfig',
 
-    'rest_captcha',
 ]
 
 MIDDLEWARE = [

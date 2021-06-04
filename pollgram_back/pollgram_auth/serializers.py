@@ -4,7 +4,7 @@ from rest_captcha.serializers import RestCaptchaSerializer
 from rest_framework import serializers
 
 
-class RegisterSerializer(DefaultRegisterSerializer, RestCaptchaSerializer):
+class RegisterSerializer(RestCaptchaSerializer, DefaultRegisterSerializer):
     username = None
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=False)
@@ -15,7 +15,7 @@ class RegisterSerializer(DefaultRegisterSerializer, RestCaptchaSerializer):
         user.save(update_fields=['first_name', 'last_name'])
 
 
-class LoginSerializer(DefaultLoginSerializer, RestCaptchaSerializer):
+class LoginSerializer(RestCaptchaSerializer, DefaultLoginSerializer):
     username = None
 
     def __init__(self, *args, **kwargs):
