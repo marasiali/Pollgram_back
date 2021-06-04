@@ -186,3 +186,15 @@ class CommentSerializer(serializers.ModelSerializer):
         if parent and not parent.poll == poll:
             raise serializers.ValidationError("The comment parent doesn't belong to this poll.")
         return data
+
+
+class BarChartSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(source='created_at')
+    count = serializers.SerializerMethodField('get_count')
+
+    class Meta:
+        model = Vote
+        fields = ('date', 'count')
+
+    def get_count(self, obj):
+        return obj['count']
