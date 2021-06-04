@@ -89,6 +89,7 @@
     DEPLOY_PORT: "{{ deploy_port }}"
     DEPLOY_DATA_DIR: "{{ deploy_data_dir }}"
     FRONTEND_DIR: "{{ frontend_dir }}"
+    DJANGO_STATIC_URL: "{{ django_static_url }}"
   tasks:
   - name: Ensure docker is started
     service:

@@ -33,6 +33,7 @@ services:
       - EMAIL_USE_TLS
       - DEFAULT_FROM_EMAIL
       - ENABLE_BROWSABLE_API
+      - DJANGO_STATIC_URL
     links:
       - postgres-db
   postgres-db:
@@ -58,6 +59,7 @@ services:
       - frontend_volume:/frontend/
     environment:
       - DEPLOY_PORT
+      - DJANGO_STATIC_URL
     depends_on:
       - backendapp
 volumes:

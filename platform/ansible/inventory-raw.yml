@@ -35,3 +35,4 @@ pollgramserver:
     git_branch_name: "$GIT_BRANCH_NAME"
     ansible_deploy_stack_no_log: "$ANSIBLE_DEPLOY_STACK_NO_LOG"
     frontend_dir: "$FRONTEND_DIR"
+    django_static_url: "$DJANGO_STATIC_URL"
