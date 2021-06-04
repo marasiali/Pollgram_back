@@ -1,15 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from rest_framework import status
 from rest_framework import filters
-from rest_framework.authtoken.admin import User
+# from rest_framework.authtoken.admin import User
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from socialmedia.pagination import SearchResultsSetPagination
+from socialmedia.pagination import SearchResultsSetPagination, BlockedUsersPagination
 
 from poll.models import Poll
 from poll.paginations import PollPagination
 from poll.serializers import PollRetrieveSerializer
+
+from ..models import FollowRelationship
 from ..serializers.user import (
     UserAdminAccessSerializer,
     UserBaseAccessSerializer,
@@ -20,8 +26,11 @@ from ..permissons import IsSelfOrReadOnly, IsFollowerOrPublic
 
 
 class UserAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = get_user_model()
     permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
+
+    def get_queryset(self):
+        return get_user_model().objects.exclude(blocked_users=self.request.user)
+    
 
     def get_serializer_class(self):
         if self.request.user.is_superuser:
@@ -31,27 +40,30 @@ class UserAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class UserAvatarAPIView(RetrieveUpdateAPIView):
-    queryset = get_user_model()
     serializer_class = UserAvatarSerializer
-    permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
+    def get_object(self):
+        self.request.user
 
 class UserCoverAPIView(RetrieveUpdateAPIView):
-    queryset = get_user_model()
     serializer_class = UserCoverSerializer
-    permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        self.request.user
 
 
 class UserListAPIView(ListAPIView):
-    queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSummarySerializer
+    pagination_class = SearchResultsSetPagination
 
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'first_name', 'last_name']
 
-    pagination_class = SearchResultsSetPagination
-
-    serializer_class = UserSummarySerializer
+    def get_queryset(self):
+        return get_user_model().objects.exclude(blocked_users=self.request.user)
 
 
 class UserTimelineListAPIView(ListAPIView):
@@ -73,5 +85,43 @@ class PollListAPIView(ListAPIView):
     serializer_class = PollRetrieveSerializer
 
     def get_queryset(self):
-        user = get_object_or_404(get_user_model(), id=self.kwargs['pk'])
+        user = get_object_or_404(get_user_model(), ~Q(blocked_users=self.request.user), id=self.kwargs['pk'])
         return user.polls.all()
+
+
+class BlockedUsersListAPIView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = BlockedUsersPagination
+    serializer_class = UserSummarySerializer
+
+    def get_queryset(self):
+        return self.request.user.blocked_users.all()
+
+
+class BlockUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        user = get_object_or_404(get_user_model(), ~Q(blocked_users=self.request.user), pk=pk)
+        if request.user.pk == pk:
+            return Response({
+                "status": "You can't block yourself."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        elif request.user.blocked_users.filter(pk=pk).exists():
+            return Response({
+                "status": "already blocked"
+            }, status=status.HTTP_409_CONFLICT)
+        else:
+            request.user.blocked_users.add(user)
+            FollowRelationship.objects.filter(Q(from_user=request.user, to_user=user) | Q(from_user=user, to_user=request.user)).delete()
+            return Response(UserSummarySerializer(user).data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+        user = get_object_or_404(get_user_model(), ~Q(blocked_users=self.request.user), pk=pk)
+        if not request.user.blocked_users.filter(pk=pk).exists():
+            return Response({
+                "status": "already unblocked"
+            }, status=status.HTTP_409_CONFLICT)
+        else:
+            request.user.blocked_users.remove(user)
+            return Response(status=status.HTTP_204_NO_CONTENT)

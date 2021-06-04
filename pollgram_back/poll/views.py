@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, ListAPIView, ListCreateAPIView, \
@@ -21,9 +22,11 @@ from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, 
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
-    queryset = Poll.objects.all()
     serializer_class = PollRetrieveSerializer
     permission_classes = [IsAuthenticated, IsCreatorOrReadOnly, IsFollowerOrPublicForGetAPoll]
+
+    def get_queryset(self):
+        return Poll.objects.exclude(creator__blocked_users=self.request.user)
 
 
 class PollCreateAPIView(CreateAPIView):
@@ -37,12 +40,13 @@ class VoteAPIView(APIView):
 
     def post(self, request, poll_pk):
         user = request.user
-        poll = get_object_or_404(Poll, pk=poll_pk)
+        
+        poll = get_object_or_404(Poll, ~Q(creator__blocked_users=request.user), pk=poll_pk)
         if poll.choices.filter(votes__user=user).exists():
             return Response({
                 "status": "already voted"
             }, status=status.HTTP_409_CONFLICT)
-        choices = poll.choices.filter(order__in=request.data.get('selected'))
+        choices = poll.choices.filter(order__in=request.data.get('selected', []))
         if not choices:
             return Response({
                 "selected": "this field is required"
@@ -58,7 +62,7 @@ class VoteAPIView(APIView):
 
     def delete(self, request, poll_pk):
         user = request.user
-        poll = get_object_or_404(Poll, pk=poll_pk)
+        poll = get_object_or_404(Poll, ~Q(creator__blocked_users=request.user), pk=poll_pk)
         if poll.is_vote_retractable:
             if not poll.choices.filter(votes__user=user).exists():
                 return Response({
@@ -83,9 +87,9 @@ class VotersListAPIView(ListAPIView):
     def get_queryset(self):
         poll_id = self.kwargs['poll_pk']
         order = self.kwargs['order']
-        choice = get_object_or_404(Choice, poll=poll_id, order=order)
+        choice = get_object_or_404(Choice, ~Q(poll__creator__blocked_users=self.request.user), poll=poll_id, order=order)
         user_ids = choice.votes.all().values_list('user', flat=True)
-        return User.objects.filter(id__in=user_ids)
+        return User.objects.filter(id__in=user_ids).exclude(blocked_users=self.request.user)
 
 
 class ImageCreateAPIView(CreateAPIView):
@@ -121,10 +125,10 @@ class CategoryPollsListAPIView(ListAPIView):
             sub_categories = category.get_sub_categories().prefetch_related('polls')
             polls = Poll.objects.none()
             for sub_cat in sub_categories:
-                polls = polls | sub_cat.polls.filter(creator__is_public=True)
-            return polls | category.polls.filter(creator__is_public=True)
+                polls = polls | sub_cat.polls.filter(creator__is_public=True).exclude(creator__blocked_users=self.request.user)
+            return polls | category.polls.filter(creator__is_public=True).exclude(creator__blocked_users=self.request.user)
         else:
-            return Poll.objects.filter(category=category, creator__is_public=True)
+            return Poll.objects.filter(category=category, creator__is_public=True).exclude(creator__blocked_users=self.request.user)
 
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -133,8 +137,8 @@ class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     lookup_url_kwarg = "comment_pk"
 
     def get_queryset(self):
-        poll = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
-        return poll.comments
+        poll = get_object_or_404(Poll, ~Q(creator__blocked_users=self.request.user), pk=self.kwargs.get('poll_pk'))
+        return poll.comments.exclude(creator__blocked_users=self.request.user)
 
 
 class CommentListCreateAPIView(ListCreateAPIView):
@@ -146,20 +150,20 @@ class CommentListCreateAPIView(ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super(CommentListCreateAPIView, self).get_serializer_context()
-        context['poll'] = get_object_or_404(Poll, pk=self.kwargs.get('poll_pk'))
+        context['poll'] = get_object_or_404(Poll, ~Q(creator__blocked_users=self.request.user), pk=self.kwargs.get('poll_pk'))
         return context
 
     def get_queryset(self):
         filter_order = self.request.query_params.get('order')
 
         if filter_order:
-            poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
+            poll = get_object_or_404(Poll, ~Q(creator__blocked_users=self.request.user), id=self.kwargs['poll_pk'])
             choice = get_object_or_404(Choice, poll=poll, order=filter_order)
             users = choice.votes.all().values_list('user', flat=True)
-            return Comment.objects.filter(creator__in=users, poll=poll)
+            return Comment.objects.filter(creator__in=users, poll=poll).exclude(creator__blocked_users=self.request.user)
         else:
-            poll = get_object_or_404(Poll, id=self.kwargs['poll_pk'])
-            return poll.comments.filter(parent=None)
+            poll = get_object_or_404(Poll, ~Q(creator__blocked_users=self.request.user), id=self.kwargs['poll_pk'])
+            return poll.comments.filter(parent=None).exclude(creator__blocked_users=self.request.user)
 
 
 class ReplyListAPIView(ListAPIView):
@@ -168,8 +172,9 @@ class ReplyListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsFollowerOrPublic]
 
     def get_queryset(self):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_pk'])
-        return comment.replies.all()
+        comment = get_object_or_404(Comment, ~Q(creator__blocked_users=self.request.user), ~Q(poll__creator__blocked_users=self.request.user),\
+                                     id=self.kwargs['comment_pk'])
+        return comment.replies.all().exclude(creator__blocked_users=self.request.user)
 
 
 class LikeAPIView(APIView):
@@ -177,7 +182,8 @@ class LikeAPIView(APIView):
 
     def post(self, request, poll_pk, comment_pk):
         user = request.user
-        comment = get_object_or_404(Comment, pk=comment_pk)
+        comment = get_object_or_404(Comment,  ~Q(creator__blocked_users=request.user), ~Q(poll__creator__blocked_users=request.user),\
+                                    pk=comment_pk)
         if comment.likes.filter(pk=user.pk).exists():
             return Response({"msg": "already liked"}, status=status.HTTP_409_CONFLICT)
         if comment.dislikes.filter(pk=user.pk).exists():
@@ -189,7 +195,8 @@ class LikeAPIView(APIView):
 
     def delete(self, request, poll_pk, comment_pk):
         user = request.user
-        comment = get_object_or_404(Comment, pk=comment_pk)
+        comment = get_object_or_404(Comment,  ~Q(creator__blocked_users=request.user), ~Q(poll__creator__blocked_users=request.user),\
+                                    pk=comment_pk)
         if not comment.likes.filter(pk=user.pk).exists():
             return Response({"msg": "not liked"}, status=status.HTTP_409_CONFLICT)
 
@@ -203,7 +210,8 @@ class DislikeAPIView(APIView):
 
     def post(self, request, poll_pk, comment_pk):
         user = request.user
-        comment = get_object_or_404(Comment, pk=comment_pk)
+        comment = get_object_or_404(Comment,  ~Q(creator__blocked_users=request.user), ~Q(poll__creator__blocked_users=request.user),\
+                                    pk=comment_pk)
         if comment.dislikes.filter(pk=user.pk).exists():
             return Response({"msg": "already disliked"}, status=status.HTTP_409_CONFLICT)
         if comment.likes.filter(pk=user.pk).exists():
@@ -215,7 +223,8 @@ class DislikeAPIView(APIView):
 
     def delete(self, request, poll_pk, comment_pk):
         user = request.user
-        comment = get_object_or_404(Comment, pk=comment_pk)
+        comment = get_object_or_404(Comment,  ~Q(creator__blocked_users=request.user), ~Q(poll__creator__blocked_users=request.user),\
+                                    pk=comment_pk)
         if not comment.dislikes.filter(pk=user.pk).exists():
             return Response({"msg": "not disliked"}, status=status.HTTP_409_CONFLICT)
 

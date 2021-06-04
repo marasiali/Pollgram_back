@@ -27,6 +27,7 @@ class User(AbstractUser):
     is_verified = models.BooleanField("Verified?", default=False)
     followings = models.ManyToManyField("self", related_name='followers', symmetrical=False,
                                         through='FollowRelationship')
+    blocked_users = models.ManyToManyField("self", related_name='blocker_users', symmetrical=False)
 
     def get_followers(self):
         # sort results have added to have a stable response

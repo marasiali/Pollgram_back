@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -185,6 +186,8 @@ class CommentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can't reply this comment.")
         if parent and not parent.poll == poll:
             raise serializers.ValidationError("The comment parent doesn't belong to this poll.")
+        if parent and parent.creator.blocked_users.filter(pk=self.context['request'].user.pk):
+            raise Http404()
         return data
 
 
