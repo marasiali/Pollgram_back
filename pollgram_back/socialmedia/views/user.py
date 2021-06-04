@@ -44,14 +44,14 @@ class UserAvatarAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        self.request.user
+        return self.request.user
 
 class UserCoverAPIView(RetrieveUpdateAPIView):
     serializer_class = UserCoverSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        self.request.user
+        return self.request.user
 
 
 class UserListAPIView(ListAPIView):
