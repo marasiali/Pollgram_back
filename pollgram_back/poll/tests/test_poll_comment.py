@@ -80,6 +80,78 @@ class CommentAndReplyTest(APITestCase):
         response = self.client.get('/api/poll/22/comment/1/', HTTP_AUTHORIZATION=token)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
+    def test_reply_on_comment_by_creator_user_when_page_is_private(self):
+        user = User.objects.get(id=6)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/22/comment/', {
+            "content": "test private",
+            "parent": "1"
+        }, format='json', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual('test private', response.data['content'])
+        self.assertEqual(1, response.data['parent'])
+
+    def test_reply_on_comment_by_other_when_page_is_public(self):
+        user = User.objects.get(id=3)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/12/comment/', {
+            "content": "test public page",
+            "parent": "6"
+        }, format='json', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual('test public page', response.data['content'])
+        self.assertEqual(6, response.data['parent'])
+
+    def test_reply_on_comment_by_other_user_when_page_is_private_and_other_user_is_follower(self):
+        user = User.objects.get(id=2)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/22/comment/', {
+            "content": "test private page follower",
+            "parent": "1"
+        }, format='json', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual('test private page follower', response.data['content'])
+        self.assertEqual(1, response.data['parent'])
+
+    def test_reply_on_comment_by_other_user_when_page_is_private_and_other_user_is_not_follower(self):
+        user = User.objects.get(id=3)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.post('/api/poll/22/comment/', {
+            "content": "hello comment",
+            "parent": None
+        }, format='json', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    def test_get_reply_by_creator_when_page_is_private(self):
+        user = User.objects.get(id=6)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/22/comment/5/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual('I do not give a shit', response.data['content'])
+        self.assertEqual(1, response.data['parent'])
+
+    def test_get_reply_by_other_user_when_page_is_public(self):
+        user = User.objects.get(id=3)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/12/comment/8/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual('Me too', response.data['content'])
+        self.assertEqual(6, response.data['parent'])
+
+    def test_get_reply_by_other_user_when_page_is_private_and_other_user_is_follower(self):
+        user = User.objects.get(id=2)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/22/comment/4/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual('I hate ford', response.data['content'])
+        self.assertEqual(1, response.data['parent'])
+
+    def test_get_reply_by_other_user_when_page_is_private_and_other_user_is_not_follower(self):
+        user = User.objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/22/comment/1/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
     def test_get_comments_list_by_creator_user_when_page_is_private(self):
         user = User.objects.get(id=6)
         token = f'Bearer {str(AccessToken.for_user(user))}'
