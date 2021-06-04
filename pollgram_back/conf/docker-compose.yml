@@ -33,6 +33,7 @@ services:
       - EMAIL_USE_TLS
       - DEFAULT_FROM_EMAIL
       - ENABLE_BROWSABLE_API
+      - DJANGO_STATIC_URL
     links:
       - postgres-db
   postgres-db:
@@ -55,8 +56,10 @@ services:
     volumes:
       - static_volume:/backend/static/
       - media_volume:/backend/media/
+      - frontend_volume:/frontend/
     environment:
       - DEPLOY_PORT
+      - DJANGO_STATIC_URL
     depends_on:
       - backendapp
 volumes:
@@ -78,3 +81,9 @@ volumes:
       o: bind
       type: none
       device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/media/"
+  frontend_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "~/${FRONTEND_DIR}/build/"
