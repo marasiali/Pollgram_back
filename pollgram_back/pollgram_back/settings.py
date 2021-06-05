@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_filters',
     'notifications',
     'rest_captcha',
+    'blacklist',
 
     'socialmedia',
     'pollgram_auth',
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'blacklist.middleware.BlacklistMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
@@ -171,6 +173,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '200/hour',
+        'user': '200/minute'
+    }
 }
 ENABLE_BROWSABLE_API = os.environ.get("ENABLE_BROWSABLE_API", "1") == "1"
 if not ENABLE_BROWSABLE_API:
