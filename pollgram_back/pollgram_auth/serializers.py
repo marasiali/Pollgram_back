@@ -4,7 +4,7 @@ from rest_captcha.serializers import RestCaptchaSerializer
 from rest_framework import serializers
 
 
-class RegisterSerializer(RestCaptchaSerializer, DefaultRegisterSerializer):
+class RegisterSerializer(DefaultRegisterSerializer):
     username = None
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=False)
