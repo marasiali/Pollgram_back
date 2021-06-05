@@ -75,3 +75,15 @@
         from_user: 3
         to_user: 4
         pending: true
+-   model: socialmedia.followrelationship
+    pk: 5
+    fields:
+        from_user: 4
+        to_user: 3
+        pending: true
+-   model: socialmedia.followrelationship
+    pk: 6
+    fields:
+        from_user: 1
+        to_user: 3
+        pending: true
