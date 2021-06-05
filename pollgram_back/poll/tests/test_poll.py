@@ -554,3 +554,56 @@ class PollTest(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         data = response.data
         self.assertEqual(2, data['id'])
+
+    def test_get_circle_chart_by_poll_creator(self):
+        user = User.objects.get(id=1)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/7/chart/circle/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+        self.assertEqual(1, data[0]['order'])
+        self.assertEqual(2, data[0]['vote_count'])
+        self.assertEqual(2, data[1]['order'])
+        self.assertEqual(1, data[1]['vote_count'])
+        self.assertEqual(3, data[2]['order'])
+        self.assertEqual(1, data[2]['vote_count'])
+
+    def test_get_circle_chart_by_other_user(self):
+        user = User.objects.get(id=2)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/7/chart/circle/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    def test_get_bar_chart_by_poll_creator(self):
+        user = User.objects.get(id=1)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/7/chart/bar/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        data = response.data
+
+        self.assertEqual('2021-05-27', str(data[0]['created_at']))
+        self.assertEqual(0, data[0]['count'])
+        self.assertEqual('2021-05-28', str(data[1]['created_at']))
+        self.assertEqual(0, data[1]['count'])
+        self.assertEqual('2021-05-29', str(data[2]['created_at']))
+        self.assertEqual(0, data[2]['count'])
+        self.assertEqual('2021-05-30', str(data[3]['created_at']))
+        self.assertEqual(0, data[3]['count'])
+        self.assertEqual('2021-05-31', str(data[4]['created_at']))
+        self.assertEqual(0, data[4]['count'])
+        self.assertEqual('2021-06-01', str(data[5]['created_at']))
+        self.assertEqual(0, data[5]['count'])
+        self.assertEqual('2021-06-02', str(data[6]['created_at']))
+        self.assertEqual(0, data[6]['count'])
+        self.assertEqual('2021-06-03', str(data[7]['created_at']))
+        self.assertEqual(1, data[7]['count'])
+        self.assertEqual('2021-06-04', str(data[8]['created_at']))
+        self.assertEqual(2, data[8]['count'])
+        self.assertEqual('2021-06-05', str(data[9]['created_at']))
+        self.assertEqual(0, data[9]['count'])
+
+    def test_get_bar_chart_by_other_user(self):
+        user = User.objects.get(id=4)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/poll/7/chart/bar/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
