@@ -20,11 +20,11 @@ class FollowAPIView(APIView):
         follow_status = request.user.get_follow_status(to_user=to_user)
         if request.user == to_user:
             return Response({
-            "status": follow_status
+                "status": follow_status
             }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         else:
             return Response({
-            "status": follow_status
+                "status": follow_status
             })
 
     def post(self, request, pk):
@@ -82,8 +82,7 @@ class FollowRequestStatusHandlerAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_pk):
-
-        follow_relationship = get_object_or_404(FollowRelationship, ~Q(from_user__blocked_users=self.request.user),\
+        follow_relationship = get_object_or_404(FollowRelationship, ~Q(from_user__blocked_users=self.request.user),
                                                 from_user__pk=user_pk, to_user=request.user)
         follow_relationship.pending = False
         follow_relationship.save()
@@ -92,8 +91,8 @@ class FollowRequestStatusHandlerAPIView(APIView):
         }, status=status.HTTP_201_CREATED)
 
     def delete(self, request, user_pk):
-        follow_relationship = get_object_or_404(FollowRelationship, ~Q(from_user__blocked_users=self.request.user),\
-                                                 from_user__pk=user_pk, to_user=request.user)
+        follow_relationship = get_object_or_404(FollowRelationship, ~Q(from_user__blocked_users=self.request.user),
+                                                from_user__pk=user_pk, to_user=request.user)
         follow_relationship.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -104,6 +103,7 @@ class FollowRequestListAPIView(ListAPIView):
     pagination_class = FollowRequestPagination
 
     def get_queryset(self):
-        follow_relationships = FollowRelationship.objects.filter(to_user=self.request.user.id, pending=True).exclude(from_user__blocked_users=self.request.user)
+        follow_relationships = FollowRelationship.objects.filter(to_user=self.request.user.id, pending=True) \
+            .exclude(from_user__blocked_users=self.request.user)
         from_user_ids = follow_relationships.values_list('from_user', flat=True)
         return get_user_model().objects.filter(id__in=from_user_ids)

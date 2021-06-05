@@ -198,3 +198,17 @@ class FollowRequestStatusHandlerAPIViewTest(APITestCase):
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
         follow_relationship = FollowRelationship.objects.filter(from_user=3, to_user=user.id)
         self.assertFalse(follow_relationship.exists())
+
+
+class FollowRequestListAPIViewTest(APITestCase):
+    fixtures = ['user_fixture']
+
+    def test_get_follow_request_list(self):
+        user = get_user_model().objects.get(id=3)
+        token = f'Bearer {str(AccessToken.for_user(user))}'
+        response = self.client.get('/api/user/follow-request/', HTTP_AUTHORIZATION=token)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        results = response.data['results']
+        self.assertEqual(2, len(results))
+        self.assertEqual(4, results[0]['id'])
+        self.assertEqual(1, results[1]['id'])
