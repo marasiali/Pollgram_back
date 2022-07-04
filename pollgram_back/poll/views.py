@@ -18,6 +18,8 @@ from .permissions import IsCreatorOrReadOnly, IsCreatorOrPublicPoll, CommentFilt
 from .serializers import PollCreateSerializer, ImageSerializer, FileSerializer, \
     VoteResponseSerializer, VoterUserSerializer, PollRetrieveSerializer, CategorySerializer, CommentSerializer, \
     ChoiceSerializer
+from .utils.kafka.producer import vote_producer
+from .utils.kafka.kafka_vote import KafkaVote
 
 
 class PollRetrieveDestroyAPIView(RetrieveDestroyAPIView):
@@ -55,9 +57,13 @@ class VoteAPIView(APIView):
             return Response({
                 "status": "invalid number of votes"
             }, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        created_vote = Vote.objects.create(user=user)
-        created_vote.selected.set(choices)
-        return Response(VoteResponseSerializer(created_vote).data, status=status.HTTP_201_CREATED)
+        vote_producer.send(topic='votes', value=KafkaVote(user=user, choices=choices))
+        # created_vote = Vote.objects.create(user=user)
+        # created_vote.selected.set(choices)
+
+        # created_vote = Vote(user=user)
+        # created_vote.selected.set(choices)
+        return Response('vote ', status=status.HTTP_201_CREATED)
 
     def delete(self, request, poll_pk):
         user = request.user

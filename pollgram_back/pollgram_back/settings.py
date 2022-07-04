@@ -120,6 +120,7 @@ else:
         }
     }
 
+KAFKA_SERVER = os.environ.get('KAFKA_SERVER')
 
 AUTH_USER_MODEL = "socialmedia.User" 
 
@@ -158,7 +159,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/static/")
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join('BASE_DIR', "static")
+# /home/reza/pollgram_frontend/build/static
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -216,16 +218,32 @@ REST_AUTH_SERIALIZERS = {
     'LOGIN_SERIALIZER': 'pollgram_auth.serializers.LoginSerializer'
 }
 
-if IS_DOCKERIZED:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get("EMAIL_HOST")
-    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-    EMAIL_PORT = os.environ.get("EMAIL_PORT")
-    EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
-    DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# if IS_DOCKERIZED:
+#     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#     EMAIL_HOST = os.environ.get("EMAIL_HOST")
+#     EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+#     EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+#     EMAIL_PORT = os.environ.get("EMAIL_PORT")
+#     EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
+#     DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+# else:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'r.mehtari2000@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tippkfrcjqxrwnrw'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'pollgramlogin@gmail.com'
+EMAIL_HOST_PASSWORD = 'eqmpgyektmzrqqnb'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
@@ -240,3 +258,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+ALLOWED_HOSTS = ['*']
