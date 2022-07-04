@@ -6,6 +6,8 @@ services:
       context: ../..
       dockerfile: pollgram_back/conf/Dockerfile
     command: gunicorn pollgram_back.wsgi:application --bind 0.0.0.0:8000
+    deploy:
+      replicas: 3
     volumes:
       - static_volume:/code/static/
       - media_volume:/code/media/
@@ -34,6 +36,7 @@ services:
       - DEFAULT_FROM_EMAIL
       - ENABLE_BROWSABLE_API
       - DJANGO_STATIC_URL
+      - KAFKA_SERVER
     links:
       - postgres-db
   postgres-db:
@@ -62,28 +65,33 @@ services:
       - DJANGO_STATIC_URL
     depends_on:
       - backendapp
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    expose:
+      - 29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
 volumes:
   postgres_data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/postgres/"
   static_volume:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/static/"
   media_volume:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: "~/${DEPLOY_DATA_DIR}/${STACK_NAME}/media/"
   frontend_volume:
     driver: local
-    driver_opts:
+    driver_opts: 
       o: bind
       type: none
       device: "~/${FRONTEND_DIR}/build/"
